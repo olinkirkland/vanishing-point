@@ -1,5 +1,5 @@
 <template>
-    <VueFlow :nodes="nodes" :edges="edges" style="height: 100vh">
+    <VueFlow :nodes="nodes" :edges="edges">
         <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
         <template #node-special="specialNodeProps">
             <SpecialNode v-bind="specialNodeProps" />
@@ -10,6 +10,9 @@
             <SpecialEdge v-bind="specialEdgeProps" />
         </template>
     </VueFlow>
+    <div class="controls">
+        
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -97,10 +100,27 @@ const edges = ref<Edge[]>([
 ]);
 </script>
 
-<style>
+<style lang="scss">
+// Use the following line to reset the default styles
+@use 'assets/scss/reset.scss';
+
 /* import the necessary styles for Vue Flow to work */
 @import '@vue-flow/core/dist/style.css';
 
 /* import the default theme, this is optional but generally recommended */
 @import '@vue-flow/core/dist/theme-default.css';
+
+.vue-flow {
+    height: 100vh;
+}
+
+.controls {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 </style>
