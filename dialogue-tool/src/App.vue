@@ -4,10 +4,12 @@
         :edges="edges"
         :snap-to-grid="true"
         :snap-grid="[16, 16]"
+        :ref="vueFlowRef"
     >
         <template
             #node-dialogue="dialogueNodeProps"
             v-on:drag="dialogueNodeProps.onDrag"
+            v-on:dragend="dialogueNodeProps.setPosition"
         >
             <DialogueNode v-bind="dialogueNodeProps" />
         </template>
@@ -18,7 +20,7 @@
         <Background :gap="16" :offset="0" />
     </VueFlow>
     <div class="controls">
-        <button>Reset stage X and Y positions</button>
+        <button @click="resetViewport">Reset stage X and Y positions</button>
         <Card>
             <pre>{{ JSON.stringify(scene, null, 2) }}</pre>
         </Card>
@@ -27,14 +29,14 @@
 
 <script setup lang="ts">
 import { Background } from '@vue-flow/background';
-import { VueFlow } from '@vue-flow/core';
+import { useVueFlow, VueFlow, VueFlowStore } from '@vue-flow/core';
 import { computed, onMounted, ref, watch } from 'vue';
 
+import Card from './components/Card.vue';
 import DialogueNode from './components/DialogueNode.vue';
 import SpecialEdge from './components/SpecialEdge.vue';
 import sampleScene from './sample-scene.json';
 import Scene from './scene';
-import Card from './components/Card.vue';
 
 const scene = ref<Scene>();
 
@@ -46,6 +48,13 @@ onMounted(() => {
     );
 });
 
+const vueFlowInstance = ref<VueFlowStore | null>(null);
+const { onPaneReady } = useVueFlow();
+onPaneReady((vueFlow) => {
+    vueFlowInstance.value = vueFlow;
+    vueFlowInstance.value?.fitView();
+});
+
 watch(
     scene,
     () => {
@@ -55,8 +64,6 @@ watch(
 );
 
 const edges = computed(() => []);
-
-// const edges = ref<Edge[]>([
 //     {
 //         id: 'e1->2',
 //         source: '1',
@@ -78,6 +85,10 @@ const edges = computed(() => []);
 //         }
 //     }
 // ]);
+
+function resetViewport() {
+    vueFlowInstance.value?.fitView();
+}
 </script>
 
 <style lang="scss">

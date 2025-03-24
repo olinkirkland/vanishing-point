@@ -17,6 +17,10 @@ export default class Dialogue {
         };
     }
 
+     setPosition(x: number, y: number) {
+        this.position = { x, y };
+    }
+
     /**
      * Load data into the Dialogue object
      * @param data - The data to load into the Dialogue object
