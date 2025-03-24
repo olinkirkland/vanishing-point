@@ -18,7 +18,10 @@
         <Background :gap="16" :offset="0" />
     </VueFlow>
     <div class="controls">
-        <pre>{{ JSON.stringify(scene, null, 2) }}</pre>
+        <button>Reset stage X and Y positions</button>
+        <Card>
+            <pre>{{ JSON.stringify(scene, null, 2) }}</pre>
+        </Card>
     </div>
 </template>
 
@@ -31,6 +34,7 @@ import DialogueNode from './components/DialogueNode.vue';
 import SpecialEdge from './components/SpecialEdge.vue';
 import sampleScene from './sample-scene.json';
 import Scene from './scene';
+import Card from './components/Card.vue';
 
 const scene = ref<Scene>();
 
