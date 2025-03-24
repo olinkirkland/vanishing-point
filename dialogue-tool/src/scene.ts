@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import Dialogue from './Dialogue';
+import Dialogue from './dialogue';
 
 export default class Scene {
     id: string;
@@ -27,7 +27,7 @@ export default class Scene {
     /**
      * Get a JSON friendly representation of the Scene object
      * @returns A JSON friendly representation of the Scene object
-     */ 
+     */
     save() {
         return {
             id: this.id,

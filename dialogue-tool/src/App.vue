@@ -1,11 +1,21 @@
 <template>
-    <VueFlow :nodes="nodes" :edges="edges">
-        <template #node-special="specialNodeProps">
-            <SpecialNode v-bind="specialNodeProps" />
+    <VueFlow
+        :nodes="scene?.dialogues"
+        :edges="edges"
+        :snap-to-grid="true"
+        :snap-grid="[16, 16]"
+    >
+        <template
+            #node-dialogue="dialogueNodeProps"
+            v-on:drag="dialogueNodeProps.onDrag"
+        >
+            <DialogueNode v-bind="dialogueNodeProps" />
         </template>
-        <template #edge-special="specialEdgeProps">
+        <template #edge-dialogue="specialEdgeProps">
             <SpecialEdge v-bind="specialEdgeProps" />
         </template>
+        <!-- Background is dots spaced by 16px, offset 0 -->
+        <Background :gap="16" :offset="0" />
     </VueFlow>
     <div class="controls">
         <pre>{{ JSON.stringify(scene, null, 2) }}</pre>
@@ -13,16 +23,17 @@
 </template>
 
 <script setup lang="ts">
-import type { Edge, Node } from '@vue-flow/core';
+import { Background } from '@vue-flow/background';
 import { VueFlow } from '@vue-flow/core';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
+import DialogueNode from './components/DialogueNode.vue';
 import SpecialEdge from './components/SpecialEdge.vue';
-import SpecialNode from './components/SpecialNode.vue';
-import Scene from './scene';
 import sampleScene from './sample-scene.json';
+import Scene from './scene';
 
 const scene = ref<Scene>();
+
 onMounted(() => {
     // Load the scene from localstorage or create a new scene
     const savedScene = localStorage.getItem('scene');
@@ -31,61 +42,38 @@ onMounted(() => {
     );
 });
 
-watch(scene, () => {
-    localStorage.setItem('scene', JSON.stringify(scene.value?.save()));
-});
+watch(
+    scene,
+    () => {
+        localStorage.setItem('scene', JSON.stringify(scene.value?.save()));
+    },
+    { deep: true }
+);
 
-const nodes = ref<Node[]>([
-    {
-        id: '1',
-        type: 'input',
-        position: { x: 250, y: 5 },
-        data: { label: 'Node 1' }
-    },
-    {
-        id: '2',
-        position: { x: 100, y: 100 },
-        data: { label: 'Node 2' }
-    },
-    {
-        id: '3',
-        type: 'output',
-        position: { x: 400, y: 200 },
-        data: { label: 'Node 3' }
-    },
-    {
-        id: '4',
-        type: 'special',
-        position: { x: 400, y: 200 },
-        data: {
-            label: 'Node 4',
-            hello: 'world'
-        }
-    }
-]);
+const edges = computed(() => []);
 
-const edges = ref<Edge[]>([
-    {
-        id: 'e1->2',
-        source: '1',
-        target: '2'
-    },
-    {
-        id: 'e2->3',
-        source: '2',
-        target: '3',
-        animated: true
-    },
-    {
-        id: 'e3->4',
-        type: 'special',
-        source: '3',
-        target: '4',
-        data: {
-            hello: 'world'
-        }
-    }
-]);
+// const edges = ref<Edge[]>([
+//     {
+//         id: 'e1->2',
+//         source: '1',
+//         target: '2'
+//     },
+//     {
+//         id: 'e2->3',
+//         source: '2',
+//         target: '3',
+//         animated: true
+//     },
+//     {
+//         id: 'e3->4',
+//         type: 'special',
+//         source: '3',
+//         target: '4',
+//         data: {
+//             hello: 'world'
+//         }
+//     }
+// ]);
 </script>
 
 <style lang="scss">
