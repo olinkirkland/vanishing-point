@@ -11,7 +11,6 @@
     border-radius: 5px;
     background-color: var(--color-surface-light);
     border: 1px solid var(--color-surface);
-    box-shadow: var(--shadow-sm);
     overflow-y: auto;
     overflow-x: hidden;
 }

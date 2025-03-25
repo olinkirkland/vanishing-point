@@ -14,6 +14,7 @@ export default class Scene {
      * @param data - The data to load into the Scene object
      * @returns The Scene object
      */
+
     load(data: any) {
         this.id = data.id;
         this.dialogues = data.dialogues.map((dialogueData: any) => {
