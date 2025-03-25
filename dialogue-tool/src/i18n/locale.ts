@@ -17,13 +17,13 @@ const i18n = createI18n<[MessageSchema], 'en'>({
     },
     warnHtmlMessage: false,
     messages: {
-        en, // English
+        en // English
         // @ts-ignore
-        de, // German
+        // de, // German
         // @ts-ignore
-        es, // Spanish
+        // es, // Spanish
         // @ts-ignore
-        fr // French
+        // fr // French
     }
 });
 

@@ -6,7 +6,7 @@
             v-if="closeButton"
             @click="onClickClose"
         >
-            <img src="/assets/icons/close.png" alt="Close" />
+            <i class="fas fa-times"></i>
         </button>
     </div>
 </template>
@@ -16,7 +16,7 @@ import ModalController from '@/controllers/modal-controller';
 
 const props = defineProps({
     closeButton: Boolean,
-    closeButtonAction: Function,
+    closeButtonAction: Function
 });
 
 function onClickClose() {

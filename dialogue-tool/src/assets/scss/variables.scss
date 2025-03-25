@@ -2,14 +2,16 @@
 :root {
     // Colors
     --color-primary: #339af0; // Used for primary actions, buttons, highlights
+    --color-background: #f8f9fa; // Used for background
+    --color-background-alt: #f1f3f5; // Used for background
     --color-surface: #e4e4e4; // For cards, modals, or containers on top of background
-    --color-surface-light: #fafafa; // For cards, modals, or containers on top of surface
+    --color-surface-alt: #fafafa; // For cards, modals, or containers on top of surface
     --color-on-surface: #444444; // For cards, modals, or containers on top of surface
-    --color-on-surface-light: #4a4a4a; // For cards, modals, or containers on top of surface
+    --color-on-surface-alt: #4a4a4a; // For cards, modals, or containers on top of surface
     --color-error: #e74c3c; // Used for error states, alerts
 
     // Rainbow
-    --color-red: #f03e3e;
+    --color-red: #bbb0b0;
     --color-orange: #ff922b;
     --color-yellow: #ffd43b;
     --color-green: #51cf66;

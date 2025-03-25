@@ -1,3 +1,8 @@
+* {
+    font-family: 'Arial', sans-serif;
+    font-size: 1.6rem;
+}
+
 pre {
     border-left: 0.4rem solid var(--color-orange);
     text-align: left;
@@ -8,15 +13,4 @@ pre {
     font-size: 1.2rem;
     line-height: 1.5;
     font-family: monospace;
-}
-
-button {
-    cursor: pointer;
-    border-radius: 5px;
-    border: 1px solid var(--color-surface);
-    background-color: var(--color-surface-light);
-
-    &:active {
-        filter: brightness(0.95);
-    }
 }
