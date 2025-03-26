@@ -1,1 +1,20 @@
-{}
+{
+    "UI": {
+        "Modals": {
+            "Tracking": {
+                "title": "Allow tracking?",
+                "message": "We track events like clicks and page views to improve our service.",
+                "Controls": {
+                    "cancel": "No thanks",
+                    "confirm": "Allow tracking"
+                }
+            },
+            "Confirm": {
+                "Controls": {
+                    "cancel": "Cancel",
+                    "confirm": "Confirm"
+                }
+            }
+        }
+    }
+}

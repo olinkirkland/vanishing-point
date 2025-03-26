@@ -9,34 +9,23 @@
             <div class="confirm">
                 <p v-html="props.message"></p>
 
-                <div
-                    class="choices"
-                    :class="{ 'reverse-order': props.isConfirmButtonCta }"
-                >
-                    <button
+                <div class="choices">
+                    <Button class="btn" @click="onClickCancel">
+                        <span>{{
+                            props.cancelText ||
+                            useI18n().t('UI.Modals.Confirm.Controls.cancel')
+                        }}</span>
+                    </Button>
+                    <Button
                         class="btn"
-                        :class="{ 'btn--alt': !isConfirmButtonCta }"
+                        :primary="props.isConfirmButtonCta"
                         @click="props.onConfirm"
                     >
                         <span>{{
                             props.confirmText ||
-                            useI18n().t(
-                                'User-interface.Modals.Confirm.Controls.confirm-button'
-                            )
+                            useI18n().t('UI.Modals.Confirm.Controls.confirm')
                         }}</span>
-                    </button>
-                    <button
-                        class="btn"
-                        :class="{ 'btn--alt': isConfirmButtonCta }"
-                        @click="onClickCancel"
-                    >
-                        <span>{{
-                            props.cancelText ||
-                            useI18n().t(
-                                'User-interface.Modals.Confirm.Controls.cancel-button'
-                            )
-                        }}</span>
-                    </button>
+                    </Button>
                 </div>
             </div>
         </template>
@@ -78,19 +67,11 @@ function onClickCancel() {
     display: flex;
     gap: 0.8rem;
     justify-content: center;
-
-    &.reverse-order {
-        flex-direction: row-reverse;
-    }
 }
 
 @media (max-width: 768px) {
     .choices {
         flex-direction: column;
-
-        &.reverse-order {
-            flex-direction: column-reverse;
-        }
     }
 }
 </style>

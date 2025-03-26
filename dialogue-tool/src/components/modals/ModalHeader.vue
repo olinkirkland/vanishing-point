@@ -1,13 +1,9 @@
 <template>
     <div class="modal__header">
         <slot></slot>
-        <button
-            class="btn btn--icon close"
-            v-if="closeButton"
-            @click="onClickClose"
-        >
+        <Button icon class="close" v-if="closeButton" @click="onClickClose">
             <i class="fas fa-times"></i>
-        </button>
+        </Button>
     </div>
 </template>
 
@@ -40,14 +36,8 @@ function onClickClose() {
 
     .close {
         position: absolute;
-        top: 0;
-        right: 0;
-        padding: 2.5rem;
-        border: none;
-        box-shadow: none;
-        &::after {
-            display: none;
-        }
+        top: 1rem;
+        right: 1rem;
     }
 }
 </style>

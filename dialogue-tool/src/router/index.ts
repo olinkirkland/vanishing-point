@@ -56,13 +56,13 @@ router.beforeEach(async (to, from, next) => {
     if (localStorage.getItem('tracking') === null) {
         // If localStorage is not available, show the tracking prompt to enable tracking
         ModalController.open(ConfirmModal, {
-            title: t('User-interface.Modals.Tracking-consent.title'),
-            message: t('User-interface.Modals.Tracking-consent.message'),
+            title: t('UI.Modals.Tracking.title'),
+            message: t('UI.Modals.Tracking.message'),
             confirmText: t(
-                'User-interface.Modals.Tracking-consent.Controls.confirm-button'
+                'UI.Modals.Tracking.Controls.confirm'
             ),
             cancelText: t(
-                'User-interface.Modals.Tracking-consent.Controls.cancel-button'
+                'UI.Modals.Tracking.Controls.cancel'
             ),
             isConfirmButtonCta: true,
             onConfirm: () => {

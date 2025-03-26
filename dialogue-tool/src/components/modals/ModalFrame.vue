@@ -15,10 +15,10 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    animation: animate-in 0.2s ease;
     color: var(--color-on-surface);
     overflow: hidden;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
+    border-radius: 5px;
 
     .modal__background {
         position: absolute;
