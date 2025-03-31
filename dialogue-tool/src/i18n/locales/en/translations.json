@@ -5,7 +5,7 @@
                 "title": "Allow tracking?",
                 "message": "We track events like clicks and page views to improve our service.",
                 "Controls": {
-                    "cancel": "No thanks",
+                    "cancel": "Don't track me",
                     "confirm": "Allow tracking"
                 }
             },

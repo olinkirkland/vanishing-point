@@ -178,6 +178,7 @@ ModalController.getInstance().addEventListener(({ modal, modalConfig }) => {
         max-height: 100dvh; // New browsers
         max-height: -webkit-fill-available; // iOS
         animation: none;
+        border-radius: 0;
     }
 }
 </style>

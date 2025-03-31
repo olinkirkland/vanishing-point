@@ -22,7 +22,7 @@
 
     .modal__background {
         position: absolute;
-        background-color: var(--color-surface);
+        background-color: var(--color-background);
         z-index: -1;
         top: 0;
         left: 0;

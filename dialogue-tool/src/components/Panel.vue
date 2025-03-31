@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div class="panel">
         <slot></slot>
     </div>
 </template>
@@ -7,7 +7,7 @@
 <script setup lang="ts"></script>
 
 <style lang="scss" scoped>
-.card {
+.panel {
     padding: 2rem;
     border-radius: 5px;
     background-color: var(--color-surface);
@@ -18,5 +18,6 @@
     flex-direction: column;
     align-items: start;
     gap: 0.8rem;
+    box-shadow: var(--shadow-sm);
 }
 </style>

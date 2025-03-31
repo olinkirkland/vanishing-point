@@ -26,18 +26,17 @@ function onClickClose() {
 .modal__header {
     position: relative;
     display: flex;
-    justify-content: center;
     align-items: center;
     width: 100%;
-    height: 4.8rem;
-    padding: 2rem;
+    height: 5.2rem;
+    padding-left: 2rem;
+    padding-right: 0.8rem;
     gap: 1.6rem;
-    background-color: var(--color-surface-lighter);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-surface-alt);
 
     .close {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
+        margin-left: auto;
     }
 }
 </style>
