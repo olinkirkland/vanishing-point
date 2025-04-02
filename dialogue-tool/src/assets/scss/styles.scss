@@ -10,6 +10,21 @@
     font-family: 'Lobster', cursive;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--color-on-surface);
+}
+
+h2 {
+    font-size: 1.2rem;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+}
+
 pre {
     border-left: 0.4rem solid var(--color-orange);
     text-align: left;
@@ -20,4 +35,9 @@ pre {
     font-size: 1.2rem;
     line-height: 1.5;
     font-family: monospace;
+}
+
+.flex {
+    display: flex;
+    gap: 0.8rem;
 }

@@ -10,7 +10,7 @@
 .panel {
     padding: 2rem;
     border-radius: 5px;
-    background-color: var(--color-surface);
+    background-color: var(--color-background);
     border: 1px solid var(--color-surface-alt);
     overflow-y: auto;
     overflow-x: hidden;

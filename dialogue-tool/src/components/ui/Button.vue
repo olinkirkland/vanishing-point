@@ -26,12 +26,12 @@ button.btn {
     box-shadow: var(--shadow-sm);
     cursor: pointer;
 
-    border-bottom: 0.5rem solid var(--color-primary-alt);
+    border-bottom: 0.4rem solid var(--color-surface-alt);
 
     &:active {
         filter: brightness(0.95);
         box-shadow: none;
-        border-bottom: 1px solid var(--color-primary-alt);
+        border-bottom: 1px solid var(--color-surface-alt);
     }
 
     &.btn--primary {
@@ -39,6 +39,10 @@ button.btn {
         border-color: var(--color-primary-alt);
         * {
             color: var(--color-background);
+        }
+
+        &:active {
+            border-bottom: 1px solid var(--color-primary-alt);
         }
     }
 
