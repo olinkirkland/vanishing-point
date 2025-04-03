@@ -126,7 +126,6 @@ ModalController.getInstance().addEventListener(({ modal, modalConfig }) => {
         top: 0;
         z-index: -1;
         background-color: rgba(0, 0, 0, 0.5);
-        transition: all 0.2s;
         opacity: 1;
     }
 

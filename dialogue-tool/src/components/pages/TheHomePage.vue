@@ -1,6 +1,6 @@
 <template>
     <div class="page page--home">
-        <Panel>
+        <Panel class="controls-panel">
             <!-- <h1 class="logo">Storytree</h1>
             <p>A node-based dialogue tool.</p> -->
 
@@ -9,22 +9,20 @@
                     <i class="fas fa-plus-circle"></i>
                     <span>New Project</span>
                 </Button>
-                <Button @click="onClickLoadProject">
+                <Button @click="onClickLoadProject" disabled>
                     <i class="fas fa-folder-open"></i>
                     <span>Load Project</span>
                 </Button>
             </div>
         </Panel>
-        <Panel v-if="projects.length > 0">
+        <Panel v-if="projects.length > 0" class="projects-panel">
             <h2>Projects</h2>
             <ul class="projects-list">
-                <li
-                    class="project-item"
+                <ProjectCard
                     v-for="project in projects"
+                    :project="project"
                     :key="project.id"
-                >
-                    <pre>{{ project }}</pre>
-                </li>
+                ></ProjectCard>
             </ul>
         </Panel>
         <footer></footer>
@@ -35,30 +33,12 @@
 import Panel from '@/components/Panel.vue';
 import Button from '@/components/ui/Button.vue';
 import Project from '@/project';
+import { useProjectsStore } from '@/store/projects-store';
 import { v4 as uuid } from 'uuid';
-import { onMounted, ref, watch } from 'vue';
+import ProjectCard from '../ProjectCard.vue';
 
-const projects = ref<Project[]>([]);
-onMounted(() => {
-    loadProjectsFromLocalStorage();
-});
-
-watch(
-    projects,
-    (newProjects) => {
-        localStorage.setItem('projects', JSON.stringify(newProjects));
-    },
-    { deep: true }
-);
-
-async function loadProjectsFromLocalStorage(): Promise<void> {
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
-        projects.value = JSON.parse(storedProjects);
-    } else {
-        projects.value = [];
-    }
-}
+const projectsStore = useProjectsStore();
+const projects = projectsStore.projects;
 
 function onClickNewProject() {
     const newProject = new Project(
@@ -67,31 +47,31 @@ function onClickNewProject() {
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
     );
 
-    projects.value.push(newProject);
+    projectsStore.addProject(newProject);
 }
 
-function onClickLoadProject(): void {
+function onClickLoadProject() {
     // TODO
 }
 </script>
 
 <style lang="scss" scoped>
-.page {
-    height: 100vh;
-    padding: 2rem;
-    gap: 0.8rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.panel {
+    width: 100%;
+    max-width: 64rem;
 
-    .panel {
-        width: 100%;
-        max-width: 64rem;
+    &.controls-panel {
+        flex: 0 0 auto;
     }
+}
 
-    h1.logo {
-        font-size: 4rem;
-    }
+h1.logo {
+    font-size: 4rem;
+}
+
+.projects-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
 }
 </style>

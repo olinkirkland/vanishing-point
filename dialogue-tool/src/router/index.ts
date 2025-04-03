@@ -22,7 +22,7 @@ const routes = [
         name: PageName.HOME
     },
     {
-        path: '/projects/:id',
+        path: '/project/:id',
         components: {
             page: TheProjectPage
         },
@@ -58,12 +58,8 @@ router.beforeEach(async (to, from, next) => {
         ModalController.open(ConfirmModal, {
             title: t('UI.Modals.Tracking.title'),
             message: t('UI.Modals.Tracking.message'),
-            confirmText: t(
-                'UI.Modals.Tracking.Controls.confirm'
-            ),
-            cancelText: t(
-                'UI.Modals.Tracking.Controls.cancel'
-            ),
+            confirmText: t('UI.Modals.Tracking.Controls.confirm'),
+            cancelText: t('UI.Modals.Tracking.Controls.cancel'),
             isConfirmButtonCta: true,
             onConfirm: () => {
                 localStorage.setItem('tracking', 'true');

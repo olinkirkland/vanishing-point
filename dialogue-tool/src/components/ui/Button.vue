@@ -1,5 +1,13 @@
 <template>
-    <button class="btn" :class="{ 'btn--icon': icon, 'btn--primary': primary }">
+    <button
+        class="btn"
+        :class="{
+            'btn--icon': icon,
+            'btn--primary': primary,
+            'btn--disabled': disabled
+        }"
+        :disabled="disabled"
+    >
         <slot></slot>
     </button>
 </template>
@@ -9,7 +17,8 @@ import { defineProps } from 'vue';
 
 const props = defineProps({
     icon: Boolean,
-    primary: Boolean
+    primary: Boolean,
+    disabled: Boolean
 });
 </script>
 
@@ -23,7 +32,6 @@ button.btn {
     border-radius: 5px;
     background-color: var(--color-background);
     border: 1px solid var(--color-surface-alt);
-    box-shadow: var(--shadow-sm);
     cursor: pointer;
 
     border-bottom: 0.4rem solid var(--color-surface-alt);
@@ -33,28 +41,38 @@ button.btn {
         box-shadow: none;
         border-bottom: 1px solid var(--color-surface-alt);
     }
+}
 
-    &.btn--primary {
-        background-color: var(--color-primary);
-        border-color: var(--color-primary-alt);
-        * {
-            color: var(--color-background);
-        }
-
-        &:active {
-            border-bottom: 1px solid var(--color-primary-alt);
-        }
+// Primary button
+.btn.btn--primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-alt);
+    * {
+        color: var(--color-background);
     }
 
-    &.btn--icon {
-        padding: 0;
-        background-color: transparent;
-        display: flex;
-        justify-content: center;
-        width: 4rem;
-        height: 4rem;
-        border: none;
-        box-shadow: none;
+    &:active {
+        border-bottom: 1px solid var(--color-primary-alt);
     }
+}
+
+// Icon-only button
+.btn.btn--icon {
+    padding: 0;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    border: none;
+    box-shadow: none;
+}
+
+// Disabled
+.btn.btn--disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    box-shadow: none;
+    border: none;
 }
 </style>
