@@ -41,8 +41,10 @@ button {
     background-color: var(--color-background);
     border: 1px solid var(--color-surface-alt);
     cursor: pointer;
+    transition: all 0.1s ease-in-out;
 
     &:active {
+        transition: unset;
         filter: brightness(0.95);
         top: 0;
     }
