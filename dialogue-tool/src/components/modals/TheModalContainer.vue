@@ -68,6 +68,7 @@ ModalController.getInstance().addEventListener(({ modal, modalConfig }) => {
         currentModalConfig.value = { ...modalConfig };
     }
 
+    // Wait for the modal to be mounted before fading in
     requestAnimationFrame(() => {
         if (fadeInterval.value) clearInterval(fadeInterval.value);
         const modalEl = modalRef.value?.$el;
@@ -87,19 +88,6 @@ ModalController.getInstance().addEventListener(({ modal, modalConfig }) => {
             'input:not(.disabled):not(.ignore-initial-focus)'
         );
         if (firstInput) firstInput.focus();
-
-        modalChildren.forEach((childEl: any) =>
-            childEl.classList.add('hidden')
-        );
-
-        fadeInterval.value = setInterval(() => {
-            if (!modalChildren.length) {
-                clearInterval(fadeInterval.value);
-            } else {
-                const modalChild = modalChildren.shift();
-                modalChild?.classList.remove('hidden');
-            }
-        }, 30);
     });
 });
 </script>
@@ -138,29 +126,7 @@ ModalController.getInstance().addEventListener(({ modal, modalConfig }) => {
 }
 
 .modal {
-    animation: animate-in 0.2s ease;
     max-height: calc(100vh - 4rem);
-}
-
-:deep(.modal *) {
-    transition: opacity 0.5s ease;
-}
-
-:deep(.modal .hidden) {
-    opacity: 0;
-    transition: none;
-}
-
-// Fade in and scale
-@keyframes animate-in {
-    from {
-        opacity: 0.5;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
 }
 
 // Media queries
