@@ -59,7 +59,7 @@
                         >
                     </Badge>
                 </div>
-                <Button @click="onClickAddScene">
+                <Button @click="onClickAddScene" full-width>
                     <i class="fas fa-plus"></i>
                     <span>New Scene</span>
                 </Button>
@@ -70,7 +70,11 @@
                     <li
                         v-for="scene in project.scenes"
                         :key="scene.id"
-                        @click="selectedScene = scene"
+                        @click="
+                            selectedScene === scene
+                                ? (selectedScene = null)
+                                : (selectedScene = scene)
+                        "
                         :class="{
                             'is-selected': selectedScene?.id === scene.id
                         }"
@@ -83,11 +87,14 @@
                     </li></List
                 >
             </section>
-            <section class="sidebar__scene">
+            <section class="sidebar__scene" v-if="selectedScene">
                 <h2>Scene</h2>
-                <Button @click="onClickAddMoment">
+                <p v-if="selectedScene">
+                    <strong>{{ selectedScene.name }}</strong>
+                </p>
+                <Button @click="onClickAddMoment" full-width>
                     <i class="fas fa-plus"></i>
-                    <span>Add Moment</span>
+                    <span>Add Node</span>
                 </Button>
                 <List class="moments">
                     <li v-if="selectedScene?.moments.length === 0">
@@ -114,18 +121,17 @@ import Badge from '@/components/ui/Badge.vue';
 import Button from '@/components/ui/Button.vue';
 import Panel from '@/components/ui/Panel.vue';
 import ModalController from '@/controllers/modal-controller';
+import Moment from '@/moment';
 import Project from '@/project';
 import { PageName, router } from '@/router';
 import Scene from '@/scene';
 import { useProjectsStore } from '@/store/projects-store';
 import { Background } from '@vue-flow/background';
 import { Edge, Node, useVueFlow, VueFlow, VueFlowStore } from '@vue-flow/core';
-import { v4 as uuid } from 'uuid';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import SettingsModal from '../modals/templates/SettingsModal.vue';
 import List from '../ui/List.vue';
-import Moment from '@/moment';
 
 const { onPaneReady, toObject, fromObject, addNodes } = useVueFlow();
 
@@ -207,7 +213,7 @@ function onClickHome() {
     gap: 0.8rem;
 
     &:not(:last-child) {
-        margin-bottom: 1.2rem;
+        margin-bottom: 2.4rem;
     }
 }
 

@@ -4,7 +4,8 @@
         :class="{
             'btn--icon': icon,
             'btn--primary': primary,
-            'btn--disabled': disabled
+            'btn--disabled': disabled,
+            'btn--full-width': fullWidth
         }"
         :disabled="disabled"
     >
@@ -19,7 +20,8 @@ import { defineProps } from 'vue';
 const props = defineProps({
     icon: Boolean,
     primary: Boolean,
-    disabled: Boolean
+    disabled: Boolean,
+    fullWidth: Boolean
 });
 </script>
 
@@ -27,6 +29,13 @@ const props = defineProps({
 button {
     position: relative;
     background-color: transparent;
+}
+
+.btn--full-width {
+    width: 100%;
+    > .btn__content {
+        justify-content: center;
+    }
 }
 
 .btn__content {
