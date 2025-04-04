@@ -36,6 +36,7 @@ import Project from '@/project';
 import { useProjectsStore } from '@/store/projects-store';
 import { v4 as uuid } from 'uuid';
 import ProjectCard from '../ProjectCard.vue';
+import { PageName, router } from '@/router';
 
 const projectsStore = useProjectsStore();
 const projects = projectsStore.projects;
@@ -48,10 +49,15 @@ function onClickNewProject() {
     );
 
     projectsStore.addProject(newProject);
+    // Open the new project in the editor
+    router.push({
+        name: PageName.PROJECT,
+        params: { id: newProject.id }
+    });
 }
 
 function onClickLoadProject() {
-    // TODO
+    // TODO: Load a project from the file system
 }
 </script>
 

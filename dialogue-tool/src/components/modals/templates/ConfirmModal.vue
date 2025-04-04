@@ -2,7 +2,7 @@
     <ModalFrame>
         <template v-slot:header>
             <ModalHeader closeButton :closeButtonAction="onClickCancel">
-                <h3>{{ props.title }}</h3>
+                <h2>{{ props.title }}</h2>
             </ModalHeader>
         </template>
         <template v-slot:content>

@@ -18,7 +18,6 @@ const project = ref<Project | null>(
 );
 
 function onClickHome() {
-    // Redirect to the home page
     router.push({ name: PageName.HOME });
 }
 
@@ -43,7 +42,7 @@ function onClickRemove() {
 
 <template>
     <div class="page page--project">
-        <Panel>
+        <Panel class="sidebar">
             <h2>Project</h2>
             <pre>{{ projectId }}</pre>
             <div class="flex">
@@ -59,3 +58,12 @@ function onClickRemove() {
         </Panel>
     </div>
 </template>
+
+<style lang="scss" scoped>
+.page--project {
+    padding: 2rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+</style>
