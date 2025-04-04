@@ -80,21 +80,19 @@
                         }"
                     >
                         <i class="fas fa-layer-group"></i>
-                        <span
-                            >{{ scene.name }}
-                            <em>{{ scene.id.substring(0, 8) }}</em></span
-                        >
+                        <span>{{ scene.name }}</span>
                     </li></List
                 >
             </section>
             <section class="sidebar__scene" v-if="selectedScene">
                 <h2>Scene</h2>
-                <p v-if="selectedScene">
+                <p>
                     <strong>{{ selectedScene.name }}</strong>
                 </p>
+                <p>{{ selectedScene.description }}</p>
                 <Button @click="onClickAddMoment" full-width>
                     <i class="fas fa-plus"></i>
-                    <span>Add Node</span>
+                    <span>Add Moment</span>
                 </Button>
                 <List class="moments">
                     <li v-if="selectedScene?.moments.length === 0">
@@ -105,7 +103,9 @@
                         :key="moment.id"
                     >
                         <i class="fas fa-comment-alt"></i>
-                        <span>{{ moment.id.substring(0, 8) }}</span>
+                        <span
+                            ><em>{{ moment.id.substring(0, 8) }}</em></span
+                        >
                     </li></List
                 >
             </section>
@@ -157,7 +157,7 @@ function onClickSettings() {
 }
 
 function onClickAddScene() {
-    const newScene = new Scene('New Scene', 'Lorem ipsum dolor sit amet.');
+    const newScene = new Scene('Untitled Scene', 'Lorem ipsum dolor sit amet.');
     project.value?.scenes.push(newScene);
 }
 
@@ -165,23 +165,14 @@ function onClickAddMoment() {
     const newMoment = new Moment();
     selectedScene.value?.moments.push(newMoment);
 
-    // const id = uuid();
-    // addNodes([
-    //     {
-    //         id,
-    //         type: 'dialogue',
-    //         data: { label: `Node ${id}` },
-    //         position: { x: 16 * 24, y: 16 * 4 }
-    //     }
-    // ]);
-}
-
-function resetViewport() {
-    // Move to 0, 0 at zoom 1
-    vueFlowInstance.value?.setViewport(
-        { x: 0, y: 0, zoom: 1 },
-        { duration: 500 }
-    );
+    addNodes([
+        {
+            id: newMoment.id,
+            type: 'dialogue',
+            data: { label: `Node ${newMoment.id}` },
+            position: { x: 16 * 24, y: 16 * 4 }
+        }
+    ]);
 }
 
 function onClickHome() {
