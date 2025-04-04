@@ -16,8 +16,9 @@
                 >
             </Badge>
         </div>
-        <Button @click="onClickOpenProject">
-            <span>Open</span>
+        <Button @click="onClickEditProject">
+            <i class="fas fa-edit"></i>
+            <span>Edit</span>
         </Button>
     </Card>
 </template>
@@ -35,7 +36,7 @@ const props = defineProps({
     }
 });
 
-function onClickOpenProject() {
+function onClickEditProject() {
     // Redirect to the project page with the project ID
     router.push({
         name: PageName.PROJECT,

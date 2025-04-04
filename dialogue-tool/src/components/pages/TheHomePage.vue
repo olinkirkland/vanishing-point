@@ -43,7 +43,6 @@ const projects = projectsStore.projects;
 
 function onClickNewProject() {
     const newProject = new Project(
-        uuid(),
         'New Project',
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
     );

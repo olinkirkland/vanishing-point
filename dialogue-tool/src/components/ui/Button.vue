@@ -35,8 +35,8 @@ button {
     display: flex;
     gap: 0.8rem;
     align-items: center;
-    height: 4rem;
-    padding: 0 1.6rem;
+    height: 3.2rem;
+    padding: 0 1.2rem;
     border-radius: 5px;
     background-color: var(--color-background);
     border: 1px solid var(--color-surface-alt);
