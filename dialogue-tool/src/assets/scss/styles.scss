@@ -35,11 +35,16 @@ pre {
     font-size: 1.2rem;
     line-height: 1.5;
     font-family: monospace;
+    min-height: 3.8rem;
 }
 
 .flex {
     display: flex;
     gap: 0.8rem;
+
+    &.wrap {
+        flex-wrap: wrap;
+    }
 }
 
 .page {

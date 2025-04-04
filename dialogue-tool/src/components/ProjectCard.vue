@@ -1,7 +1,21 @@
 <template>
     <Card>
-        <h1>{{ project.name }}</h1>
+        <h3>{{ project.name }}</h3>
         <p>{{ project.description }}</p>
+        <div class="flex flex-wrap">
+            <Badge color="var(--color-surface-alt)" :useLightText="true">
+                <span
+                    >Created
+                    {{ new Date(project.createdAt).toLocaleDateString() }}
+                </span>
+            </Badge>
+            <Badge color="var(--color-surface-alt)" :useLightText="true">
+                <span
+                    >Modified
+                    {{ new Date(project.updatedAt).toLocaleDateString() }}</span
+                >
+            </Badge>
+        </div>
         <Button @click="onClickOpenProject">
             <span>Open</span>
         </Button>
@@ -9,9 +23,10 @@
 </template>
 
 <script setup lang="ts">
-import Card from '@/components/Card.vue';
+import Card from '@/components/ui/Card.vue';
 import Button from '@/components/ui/Button.vue';
 import { PageName, router } from '@/router';
+import Badge from './ui/Badge.vue';
 
 const props = defineProps({
     project: {

@@ -1,9 +1,12 @@
+import { FlowExportObject } from '@vue-flow/core';
+
 export default class Project {
     id: string;
     name: string;
     description: string;
     createdAt: Date;
     updatedAt: Date;
+    flow?: FlowExportObject;
 
     constructor(id: string, name: string, description: string) {
         this.id = id;

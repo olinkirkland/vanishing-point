@@ -30,8 +30,8 @@ import { Background } from '@vue-flow/background';
 import type { VueFlowStore } from '@vue-flow/core';
 import { useVueFlow, VueFlow } from '@vue-flow/core';
 import { computed, onMounted, ref, watch } from 'vue';
-import DialogueNode from './components/DialogueNode.vue';
-import SpecialEdge from './components/SpecialEdge.vue';
+import DialogueNode from './components/flow/DialogueNode.vue';
+import SpecialEdge from './components/flow/SpecialEdge.vue';
 import initialNodes from './sample-scene.json';
 import Scene from './scene';
 

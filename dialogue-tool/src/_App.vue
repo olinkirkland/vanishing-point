@@ -18,7 +18,7 @@ import type { Edge, Node } from '@vue-flow/core';
 import { VueFlow } from '@vue-flow/core';
 import { ref } from 'vue';
 
-import SpecialEdge from './components/SpecialEdge.vue';
+import SpecialEdge from './components/flow/SpecialEdge.vue';
 import SpecialNode from './components/SpecialNode.vue';
 
 const nodes = ref<Node[]>([

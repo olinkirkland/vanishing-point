@@ -86,7 +86,7 @@ button {
 
 // Disabled
 .btn--disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     pointer-events: none;
     border: none;
 }
