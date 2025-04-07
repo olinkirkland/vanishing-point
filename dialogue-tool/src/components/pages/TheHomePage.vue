@@ -1,8 +1,10 @@
 <template>
     <div class="page page--home">
         <Panel class="controls-panel">
-            <!-- <h1 class="logo">Storytree</h1>
-            <p>A node-based dialogue tool.</p> -->
+            <div class="logo-header">
+                <h1 class="logo">Storytree</h1>
+                <h2>A node-based dialogue tool</h2>
+            </div>
 
             <div class="flex">
                 <Button primary @click="onClickNewProject">
@@ -30,13 +32,12 @@
 </template>
 
 <script setup lang="ts">
-import Panel from '@/components/ui/Panel.vue';
 import Button from '@/components/ui/Button.vue';
+import Panel from '@/components/ui/Panel.vue';
 import Project from '@/project';
-import { useProjectsStore } from '@/store/projects-store';
-import { v4 as uuid } from 'uuid';
-import ProjectCard from '../ProjectCard.vue';
 import { PageName, router } from '@/router';
+import { useProjectsStore } from '@/store/projects-store';
+import ProjectCard from '../ProjectCard.vue';
 
 const projectsStore = useProjectsStore();
 const projects = projectsStore.projects;
@@ -70,8 +71,16 @@ function onClickLoadProject() {
     }
 }
 
+.logo-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 0.8rem;
+}
+
 h1.logo {
     font-size: 4rem;
+    // text-shadow: 0.2rem 0.2rem 0 var(--color-surface-alt);
 }
 
 .projects-list {

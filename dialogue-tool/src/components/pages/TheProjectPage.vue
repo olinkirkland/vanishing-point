@@ -30,7 +30,9 @@
                         <span>Project Settings</span>
                     </Button>
                 </div>
-                <h2>Project</h2>
+                <div class="sidebar__header">
+                    <h2>Project</h2>
+                </div>
                 <p>
                     <strong>{{ project.name }}</strong>
                 </p>
@@ -85,7 +87,9 @@
                 >
             </section>
             <section class="sidebar__scene" v-if="selectedScene">
-                <h2>Scene</h2>
+                <div class="sidebar__header">
+                    <h2>Scene</h2>
+                </div>
                 <p>
                     <strong>{{ selectedScene.name }}</strong>
                 </p>
@@ -194,6 +198,12 @@ function onClickHome() {
     max-width: 32rem;
     flex: 1;
     overflow: hidden;
+}
+
+.sidebar__header {
+    width: 100%;
+    background-color: var(--color-surface);
+    padding: 0.4rem 0.8rem;
 }
 
 :deep(section) {

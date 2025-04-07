@@ -1,6 +1,10 @@
 <template>
     <div class="app-layout">
-        <router-view name="page"></router-view>
+        <router-view name="page" v-slot="{ Component, route }">
+            <transition name="page-transition" mode="out-in">
+                <component :is="Component" />
+            </transition>
+        </router-view>
         <the-modal-container />
     </div>
 </template>
@@ -33,5 +37,22 @@ initializeI18nInstance();
     left: 0;
     width: 100%;
     height: 100%;
+}
+
+// Transition
+.page-transition-move, /* apply transition to moving elements */
+.page-transition-enter-active,
+.page-transition-leave-active {
+    transition: all 0.5s ease;
+}
+
+.page-transition-enter-from,
+.page-transition-leave-to {
+    opacity: 0;
+    transform: translateX(2rem);
+}
+
+.page-transition-leave-active {
+    position: absolute;
 }
 </style>
