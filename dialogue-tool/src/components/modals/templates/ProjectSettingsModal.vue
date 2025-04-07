@@ -6,13 +6,41 @@
             </ModalHeader>
         </template>
         <template v-slot:content>
-            <div class="settings">
+            <div class="project-settings">
                 <ul class="list-description">
                     <li><strong>Project ID:</strong> {{ project.id }}</li>
                     <li><strong>Project Name:</strong> {{ project.name }}</li>
                     <li>
                         <strong>Project Description:</strong> Lorem ipsum dolor
                         sit amet, consectetur adipiscing elit.
+                    </li>
+                    <li class="flex">
+                        <Badge
+                            color="var(--color-surface-alt)"
+                            :useLightText="true"
+                        >
+                            <span
+                                >Created
+                                {{
+                                    new Date(
+                                        project.createdAt
+                                    ).toLocaleDateString()
+                                }}
+                            </span>
+                        </Badge>
+                        <Badge
+                            color="var(--color-surface-alt)"
+                            :useLightText="true"
+                        >
+                            <span
+                                >Modified
+                                {{
+                                    new Date(
+                                        project.updatedAt
+                                    ).toLocaleDateString()
+                                }}</span
+                            >
+                        </Badge>
                     </li>
                 </ul>
 
@@ -28,14 +56,15 @@
 <script setup lang="ts">
 import ModalFrame from '@/components/modals/ModalFrame.vue';
 import ModalHeader from '@/components/modals/ModalHeader.vue';
+import Badge from '@/components/ui/Badge.vue';
+import Button from '@/components/ui/Button.vue';
 import ModalController from '@/controllers/modal-controller';
 import { t } from '@/i18n/locale';
 import Project from '@/project';
 import { PageName, router } from '@/router';
 import { useProjectsStore } from '@/store/projects-store';
 import ConfirmModal from './ConfirmModal.vue';
-import SettingsModal from './SettingsModal.vue';
-import Button from '@/components/ui/Button.vue';
+import ProjectSettingsModal from './ProjectSettingsModal.vue';
 
 const props = defineProps<{
     project: Project;
@@ -56,7 +85,7 @@ function onClickDeleteProject() {
         },
         onCancel: () => {
             ModalController.close();
-            ModalController.open(SettingsModal, {
+            ModalController.open(ProjectSettingsModal, {
                 project: props.project
             });
         }
@@ -65,7 +94,7 @@ function onClickDeleteProject() {
 </script>
 
 <style scoped lang="scss">
-.settings {
+.project-settings {
     display: flex;
     max-width: 64rem;
     flex-direction: column;

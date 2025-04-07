@@ -5,7 +5,7 @@
         :id="`node-${props.id}`"
     >
         <div class="node-content">
-            <p>{{ data.label }}</p>
+            <p>{{ props.id }}</p>
             <pre>{{ x }}, {{ y }}</pre>
             <Handle type="source" :position="Position.Bottom" />
         </div>
@@ -16,18 +16,10 @@
 import Card from '@/components/ui/Card.vue';
 import type { NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps<NodeProps>();
 const adjustedHeight = ref<Number>(0);
-
-watch(
-    () => props.position,
-    () => {
-        console.log('Position changed');
-        console.log(props);
-    }
-);
 
 onMounted(() => {
     adjustHeight();

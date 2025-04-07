@@ -1,10 +1,11 @@
 <template>
     <div v-if="project" class="page page--project">
         <VueFlow
-            :nodes="initialNodes"
-            :edges="initialEdges"
+            :nodes="nodes"
+            :edges="edges"
             :snap-to-grid="true"
             :snap-grid="[16, 16]"
+            v-on:nodes-change="onNodesChange"
         >
             <template
                 #node-dialogue="dialogueNodeProps"
@@ -25,42 +26,17 @@
                         <i class="fas fa-chevron-left"></i>
                         <span>Home</span>
                     </Button>
-                    <Button @click="onClickSettings">
-                        <i class="fas fa-cog"></i>
-                        <span>Project Settings</span>
-                    </Button>
                 </div>
                 <div class="sidebar__header">
                     <h2>Project</h2>
+                    <Button @click="onClickProjectSettings" icon>
+                        <i class="fas fa-cog"></i>
+                    </Button>
                 </div>
                 <p>
                     <strong>{{ project.name }}</strong>
                 </p>
                 <p>{{ project.description }}</p>
-                <div class="flex">
-                    <Badge
-                        color="var(--color-surface-alt)"
-                        :useLightText="true"
-                    >
-                        <span
-                            >Created
-                            {{
-                                new Date(project.createdAt).toLocaleDateString()
-                            }}
-                        </span>
-                    </Badge>
-                    <Badge
-                        color="var(--color-surface-alt)"
-                        :useLightText="true"
-                    >
-                        <span
-                            >Modified
-                            {{
-                                new Date(project.updatedAt).toLocaleDateString()
-                            }}</span
-                        >
-                    </Badge>
-                </div>
                 <Button @click="onClickAddScene" full-width>
                     <i class="fas fa-plus"></i>
                     <span>New Scene</span>
@@ -89,6 +65,9 @@
             <section class="sidebar__scene" v-if="selectedScene">
                 <div class="sidebar__header">
                     <h2>Scene</h2>
+                    <Button @click="onClickSceneSettings" icon>
+                        <i class="fas fa-cog"></i>
+                    </Button>
                 </div>
                 <p>
                     <strong>{{ selectedScene.name }}</strong>
@@ -105,15 +84,15 @@
                     <li
                         v-for="moment in selectedScene?.moments"
                         :key="moment.id"
+                        @click="onClickMoment(moment)"
                     >
-                        <i class="fas fa-comment-alt"></i>
-                        <span
-                            ><em>{{ moment.id.substring(0, 8) }}</em></span
-                        >
-                    </li></List
-                >
+                        <i class="fas fa-comment-dots"></i>
+                        <span>
+                            <em>{{ moment.id.substring(0, 8) }}</em>
+                        </span>
+                    </li>
+                </List>
             </section>
-            <!-- <pre>{{ JSON.stringify(project, null, 2) }}</pre> -->
         </Panel>
     </div>
 </template>
@@ -121,7 +100,6 @@
 <script setup lang="ts">
 import DialogueNode from '@/components/flow/DialogueNode.vue';
 import SpecialEdge from '@/components/flow/SpecialEdge.vue';
-import Badge from '@/components/ui/Badge.vue';
 import Button from '@/components/ui/Button.vue';
 import Panel from '@/components/ui/Panel.vue';
 import ModalController from '@/controllers/modal-controller';
@@ -132,12 +110,12 @@ import Scene from '@/scene';
 import { useProjectsStore } from '@/store/projects-store';
 import { Background } from '@vue-flow/background';
 import { Edge, Node, useVueFlow, VueFlow, VueFlowStore } from '@vue-flow/core';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import SettingsModal from '../modals/templates/SettingsModal.vue';
+import SettingsModal from '../modals/templates/ProjectSettingsModal.vue';
 import List from '../ui/List.vue';
 
-const { onPaneReady, toObject, fromObject, addNodes } = useVueFlow();
+const { onPaneReady, toObject, addNodes } = useVueFlow();
 
 const route = useRoute();
 const projectsStore = useProjectsStore();
@@ -148,16 +126,69 @@ const project = ref<Project | null>(
 
 const vueFlowInstance = ref<VueFlowStore | null>(null);
 const selectedScene = ref<Scene | null>(null);
-const initialNodes = ref<Node[]>([]);
-const initialEdges = ref<Edge[]>([]);
+const nodes = ref<Node[]>([]);
+const edges = ref<Edge[]>([]);
 
 onPaneReady((vueFlow) => {
     vueFlowInstance.value = vueFlow;
     vueFlowInstance.value?.setViewport({ x: 0, y: 0, zoom: 1 });
 });
 
-function onClickSettings() {
+// When selectedScene.id changes, update the nodes and edges
+watch(() => selectedScene.value?.id, updateSelectedScene);
+
+function updateSelectedScene() {
+    if (!selectedScene.value) return;
+    nodes.value = selectedScene.value.moments;
+}
+
+function onNodesChange() {
+    saveProject();
+}
+
+function saveProject() {
+    if (!project.value) return;
+    const projectObject = toObject();
+    project.value.scenes.forEach((scene) => {
+        scene.moments.forEach((moment) => {
+            const node = projectObject.nodes.find(
+                (node) => node.id === moment.id
+            );
+            if (node) {
+                moment.position = node.position;
+                moment.data = node.data;
+            }
+        });
+    });
+}
+
+function onClickMoment(moment: Moment) {
+    if (!vueFlowInstance.value) return;
+    // Pan to the moment's center
+    const node = vueFlowInstance.value.getNode(moment.id);
+    if (!node) return;
+
+    const sidebarOffsetX =
+        ((document.querySelector('.sidebar')?.clientWidth || 0) + 32) / 2;
+    console.log('sidebarOffsetX', sidebarOffsetX);
+    const centerOffsetX = (node.dimensions.width as number) / 2;
+    const centerOffsetY = (node.dimensions.height as number) / 2;
+    const center = {
+        x: node.position.x + centerOffsetX - sidebarOffsetX,
+        y: node.position.y + centerOffsetY
+    };
+    vueFlowInstance.value.setCenter(center.x, center.y, {
+        duration: 200,
+        zoom: 1
+    });
+}
+
+function onClickProjectSettings() {
     ModalController.open(SettingsModal, { project: project.value });
+}
+
+function onClickSceneSettings() {
+    // TODO: Implement scene settings modal
 }
 
 function onClickAddScene() {
@@ -203,7 +234,14 @@ function onClickHome() {
 .sidebar__header {
     width: 100%;
     background-color: var(--color-surface);
-    padding: 0.4rem 0.8rem;
+    padding-left: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    > * {
+        opacity: 0.5;
+    }
 }
 
 :deep(section) {
