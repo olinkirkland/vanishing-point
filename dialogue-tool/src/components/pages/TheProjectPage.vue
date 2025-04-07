@@ -28,14 +28,11 @@
                     </Button>
                 </div>
                 <div class="sidebar__header">
-                    <h2>Project</h2>
+                    <h2>{{ project.name }}</h2>
                     <Button @click="onClickProjectSettings" icon>
                         <i class="fas fa-cog"></i>
                     </Button>
                 </div>
-                <p>
-                    <strong>{{ project.name }}</strong>
-                </p>
                 <p>{{ project.description }}</p>
                 <Button @click="onClickAddScene" full-width>
                     <i class="fas fa-plus"></i>
@@ -64,50 +61,83 @@
             </section>
             <section class="sidebar__scene" v-if="selectedScene">
                 <div class="sidebar__header">
-                    <h2>Scene</h2>
+                    <h2>{{ selectedScene.name }}</h2>
                     <Button @click="onClickSceneSettings" icon>
                         <i class="fas fa-cog"></i>
                     </Button>
                 </div>
-                <p>
-                    <strong>{{ selectedScene.name }}</strong>
-                </p>
                 <p>{{ selectedScene.description }}</p>
-                <Button @click="onClickAddMoment" full-width>
+                <Button @click="onClickAddDialogue" full-width>
                     <i class="fas fa-plus"></i>
                     <span>Add Dialogue</span>
                 </Button>
-                <List class="moments">
-                    <li v-if="selectedScene?.moments.length === 0">
+                <List class="dialogue">
+                    <li v-if="selectedScene?.dialogues.length === 0">
                         <em>No dialogues yet.</em>
                     </li>
                     <li
-                        v-for="moment in selectedScene?.moments"
-                        :key="moment.id"
-                        @click="onClickMoment(moment)"
+                        v-for="dialogue in selectedScene?.dialogues"
+                        :key="dialogue.id"
+                        :class="{
+                            'is-selected': selectedDialogue?.id === dialogue.id
+                        }"
+                        @click="onClickDialogue(dialogue)"
                     >
                         <i class="fas fa-comment-dots"></i>
                         <span>
-                            <em>{{ moment.id.substring(0, 8) }}</em>
+                            <em>{{ dialogue.id.substring(0, 8) }}</em>
                         </span>
                     </li>
                 </List>
-                <Button @click="onClickAction" full-width>
+                <!-- <Button @click="onClickAction" full-width>
                     <i class="fas fa-play"></i>
                     <span>Perform Action</span>
-                </Button>
+                </Button> -->
             </section>
         </Panel>
-        <!-- Moment Panel -->
+        <!-- Dialogue Panel -->
         <Transition name="sidebar-transition">
-            <Panel class="sidebar sidebar--right" v-if="selectedMoment">
+            <Panel class="sidebar sidebar--right" v-if="selectedDialogue">
                 <div class="sidebar__header">
                     <h2>Dialogue</h2>
                     <Button @click="onClickDialogueClose" icon>
                         <i class="fas fa-times"></i>
                     </Button>
                 </div>
-                <pre>{{ selectedMoment }}</pre>
+
+                <div class="input-box">
+                    <label for="dialogue-name">Dialogue Name</label>
+                    <input
+                        type="text"
+                        v-model="selectedDialogue.data.label"
+                        placeholder="Dialogue Name"
+                    />
+                </div>
+
+                <pre>{{ selectedDialogue }}</pre>
+
+                <!-- Add option button -->
+                <Button @click="onClickAddOption" full-width>
+                    <i class="fas fa-plus"></i>
+                    <span>Add Option</span>
+                </Button>
+
+                <!-- List of options -->
+                <List class="options">
+                    <li v-if="selectedDialogue?.data.options.length === 0">
+                        <em>No options yet.</em>
+                    </li>
+                    <li
+                        v-for="option in selectedDialogue?.data.options"
+                        :key="option.id"
+                        @click="onClickOption(option)"
+                    >
+                        <i class="fas fa-comment-dots"></i>
+                        <span>
+                            <em>{{ option.id }}</em>
+                        </span>
+                    </li>
+                </List>
             </Panel>
         </Transition>
     </div>
@@ -119,7 +149,7 @@ import SpecialEdge from '@/components/flow/SpecialEdge.vue';
 import Button from '@/components/ui/Button.vue';
 import Panel from '@/components/ui/Panel.vue';
 import ModalController from '@/controllers/modal-controller';
-import Moment from '@/moment';
+import Dialogue, { DialogueOption } from '@/dialogue';
 import Project from '@/project';
 import { PageName, router } from '@/router';
 import Scene from '@/scene';
@@ -133,6 +163,7 @@ import {
     VueFlow,
     VueFlowStore
 } from '@vue-flow/core';
+import { v4 as uuid } from 'uuid';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import SettingsModal from '../modals/templates/ProjectSettingsModal.vue';
@@ -149,7 +180,7 @@ const project = ref<Project | null>(
 
 const vueFlowInstance = ref<VueFlowStore | null>(null);
 const selectedScene = ref<Scene | null>(null);
-const selectedMoment = ref<Moment | null>(null);
+const selectedDialogue = ref<Dialogue | null>(null);
 const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
 
@@ -166,12 +197,12 @@ function listenToFlowChanges() {
     // Listen for changes to the nodes
     vueFlowInstance.value?.onNodesChange((changes) => {
         changes.forEach((change) => {
-            // When selection change happens, change selectedMoment
+            // When selection change happens, change selectedDialogue
             console.log(change);
             switch (change.type) {
                 case 'select':
                     if (!change.selected) {
-                        selectedMoment.value = null;
+                        selectedDialogue.value = null;
                         return;
                     }
 
@@ -180,14 +211,14 @@ function listenToFlowChanges() {
                     );
                     if (!selectedNode) return;
 
-                    const moment = selectedScene.value?.moments.find(
-                        (moment) => moment.id === selectedNode.id
+                    const dialogue = selectedScene.value?.dialogues.find(
+                        (dialogue) => dialogue.id === selectedNode.id
                     );
-                    if (!moment) return;
+                    if (!dialogue) return;
                     setTimeout(() => {
-                        // setTimeout here is to ensure the node is selected before we set the selectedMoment
-                        // Multiple changes can happen at once, and we want to ensure the selectedMoment is set after the node is selected
-                        selectedMoment.value = moment;
+                        // setTimeout here is to ensure the node is selected before we set the selectedDialogue
+                        // Multiple changes can happen at once, and we want to ensure the selectedDialogue is set after the node is selected
+                        selectedDialogue.value = dialogue;
                     }, 0);
                     break;
                 default:
@@ -199,13 +230,19 @@ function listenToFlowChanges() {
 
 function updateSelectedScene() {
     if (!selectedScene.value) nodes.value = [];
-    else nodes.value = selectedScene.value.moments;
+    else nodes.value = selectedScene.value.dialogues;
+    selectedDialogue.value = null;
+    if (!vueFlowInstance.value) return;
+    vueFlowInstance.value.setCenter(0, 0, {
+        duration: 0,
+        zoom: 1
+    });
 }
 
 function onClickAction() {
     // Update all node internals
     const allNodeIds =
-        selectedScene.value?.moments.map((moment) => moment.id) || [];
+        selectedScene.value?.dialogues.map((dialogue) => dialogue.id) || [];
     updateNodeInternals(allNodeIds);
 }
 
@@ -217,23 +254,23 @@ function saveProject() {
     if (!project.value) return;
     const projectObject = toObject();
     project.value.scenes.forEach((scene) => {
-        scene.moments.forEach((moment) => {
+        scene.dialogues.forEach((dialogue) => {
             const node = projectObject.nodes.find(
-                (node) => node.id === moment.id
+                (node) => node.id === dialogue.id
             );
             if (node) {
-                moment.position = node.position;
-                moment.data = node.data;
+                dialogue.position = node.position;
+                dialogue.data = node.data;
             }
         });
     });
 }
 
-function onClickMoment(moment: Moment) {
+function onClickDialogue(dialogue: Dialogue) {
     if (!vueFlowInstance.value) return;
-    selectedMoment.value = moment;
+    selectedDialogue.value = dialogue;
 
-    const node = vueFlowInstance.value.getNode(moment.id);
+    const node = vueFlowInstance.value.getNode(dialogue.id);
     setTimeout(() => {
         panToNode(node);
     }, 0);
@@ -280,13 +317,13 @@ function onClickSceneSettings() {
 }
 
 function onClickDialogueClose() {
-    if (!vueFlowInstance.value || !selectedMoment.value) return;
+    if (!vueFlowInstance.value || !selectedDialogue.value) return;
     const selectedNode = vueFlowInstance.value.getNode(
-        selectedMoment.value?.id
+        selectedDialogue.value?.id
     );
     if (!selectedNode) return;
     selectedNode.selected = false;
-    selectedMoment.value = null;
+    selectedDialogue.value = null;
 }
 
 function onClickAddScene() {
@@ -294,18 +331,20 @@ function onClickAddScene() {
     project.value?.scenes.push(newScene);
 }
 
-function onClickAddMoment() {
-    const newMoment = new Moment();
-    selectedScene.value?.moments.push(newMoment);
+function onClickAddDialogue() {
+    const newDialogue = new Dialogue();
+    selectedScene.value?.dialogues.push(newDialogue);
+    addNodes([newDialogue]);
+}
 
-    addNodes([
-        {
-            id: newMoment.id,
-            type: 'dialogue',
-            data: { label: `Node ${newMoment.id}` },
-            position: { x: 16 * 24, y: 16 * 4 }
-        }
-    ]);
+function onClickAddOption() {
+    if (!selectedDialogue.value) return;
+    const newOption: DialogueOption = {
+        id: `option-${selectedDialogue.value.id}-${uuid()}`,
+        label: 'New Option',
+        nextDialogueId: null
+    };
+    selectedDialogue.value.data.options.push(newOption);
 }
 
 function onClickHome() {
@@ -366,8 +405,12 @@ function onClickHome() {
     max-height: 20rem;
 }
 
-:deep(ul.moments) {
+:deep(ul.dialogue) {
     flex: 1;
+}
+
+:deep(.sidebar ul.options) {
+    min-height: 40rem;
 }
 
 // Sidebar Transition

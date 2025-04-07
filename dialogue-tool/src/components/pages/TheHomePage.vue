@@ -1,10 +1,10 @@
 <template>
     <div class="page page--home">
         <Panel class="controls-panel">
-            <div class="logo-header">
+            <!-- <div class="logo-header">
                 <h1 class="logo">Storytree</h1>
                 <h2>A node-based dialogue tool</h2>
-            </div>
+            </div> -->
 
             <div class="flex">
                 <Button primary @click="onClickNewProject">

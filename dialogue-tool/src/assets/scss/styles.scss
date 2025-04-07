@@ -66,3 +66,26 @@ pre {
 i {
     font-size: 1.2rem;
 }
+
+.input-box {
+    label {
+        font-size: 1.4rem;
+        background-color: var(--color-background);
+        color: var(--color-on-surface);
+    }
+
+    input {
+        font-size: 1.6rem;
+        padding: 0.8rem;
+        border-radius: 5px;
+        border: 1px solid var(--color-surface-alt);
+        background-color: var(--color-background);
+        color: var(--color-on-surface);
+        width: 100%;
+
+        &:focus {
+            outline: none;
+            border: 1px solid var(--color-primary);
+        }
+    }
+}

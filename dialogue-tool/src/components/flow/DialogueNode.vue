@@ -16,13 +16,14 @@
                 />
             </div>
             <div class="node-content__body">
+                <p>{{ props.data.label }}</p>
                 <pre>{{ props.id }}</pre>
             </div>
         </div>
 
         <!-- Outgoing Handles -->
         <!-- TODO: Add a section & handle for each outgoing connection -->
-        <ul class="conditions">
+        <ul class="options">
             <li>
                 <p>Condition 1</p>
                 <Handle
@@ -128,7 +129,7 @@ const y = computed(() => `${Math.round(props.position.y)}px`);
     outline-offset: 1px;
 }
 
-ul.conditions {
+ul.options {
     margin-top: auto;
     background-color: var(--color-surface);
     width: 100%;
