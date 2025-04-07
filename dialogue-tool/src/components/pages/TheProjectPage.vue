@@ -19,7 +19,7 @@
             </template>
             <Background :gap="16" :offset="0" />
         </VueFlow>
-        <Panel class="sidebar">
+        <Panel class="sidebar sidebar--left">
             <section class="sidebar__project">
                 <div class="flex">
                     <Button @click="onClickHome">
@@ -75,11 +75,11 @@
                 <p>{{ selectedScene.description }}</p>
                 <Button @click="onClickAddMoment" full-width>
                     <i class="fas fa-plus"></i>
-                    <span>Add Moment</span>
+                    <span>Add Dialogue</span>
                 </Button>
                 <List class="moments">
                     <li v-if="selectedScene?.moments.length === 0">
-                        <em>No moments yet.</em>
+                        <em>No dialogues yet.</em>
                     </li>
                     <li
                         v-for="moment in selectedScene?.moments"
@@ -92,8 +92,24 @@
                         </span>
                     </li>
                 </List>
+                <Button @click="onClickAction" full-width>
+                    <i class="fas fa-play"></i>
+                    <span>Perform Action</span>
+                </Button>
             </section>
         </Panel>
+        <!-- Moment Panel -->
+        <Transition name="sidebar-transition">
+            <Panel class="sidebar sidebar--right" v-if="selectedMoment">
+                <div class="sidebar__header">
+                    <h2>Dialogue</h2>
+                    <Button @click="onClickDialogueClose" icon>
+                        <i class="fas fa-times"></i>
+                    </Button>
+                </div>
+                <pre>{{ selectedMoment }}</pre>
+            </Panel>
+        </Transition>
     </div>
 </template>
 
@@ -109,13 +125,20 @@ import { PageName, router } from '@/router';
 import Scene from '@/scene';
 import { useProjectsStore } from '@/store/projects-store';
 import { Background } from '@vue-flow/background';
-import { Edge, Node, useVueFlow, VueFlow, VueFlowStore } from '@vue-flow/core';
+import {
+    Edge,
+    GraphNode,
+    Node,
+    useVueFlow,
+    VueFlow,
+    VueFlowStore
+} from '@vue-flow/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import SettingsModal from '../modals/templates/ProjectSettingsModal.vue';
 import List from '../ui/List.vue';
 
-const { onPaneReady, toObject, addNodes } = useVueFlow();
+const { onPaneReady, toObject, addNodes, updateNodeInternals } = useVueFlow();
 
 const route = useRoute();
 const projectsStore = useProjectsStore();
@@ -126,20 +149,64 @@ const project = ref<Project | null>(
 
 const vueFlowInstance = ref<VueFlowStore | null>(null);
 const selectedScene = ref<Scene | null>(null);
+const selectedMoment = ref<Moment | null>(null);
 const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
 
 onPaneReady((vueFlow) => {
     vueFlowInstance.value = vueFlow;
     vueFlowInstance.value?.setViewport({ x: 0, y: 0, zoom: 1 });
+    listenToFlowChanges();
 });
 
 // When selectedScene.id changes, update the nodes and edges
 watch(() => selectedScene.value?.id, updateSelectedScene);
 
+function listenToFlowChanges() {
+    // Listen for changes to the nodes
+    vueFlowInstance.value?.onNodesChange((changes) => {
+        changes.forEach((change) => {
+            // When selection change happens, change selectedMoment
+            console.log(change);
+            switch (change.type) {
+                case 'select':
+                    if (!change.selected) {
+                        selectedMoment.value = null;
+                        return;
+                    }
+
+                    const selectedNode = vueFlowInstance.value?.getNode(
+                        change.id
+                    );
+                    if (!selectedNode) return;
+
+                    const moment = selectedScene.value?.moments.find(
+                        (moment) => moment.id === selectedNode.id
+                    );
+                    if (!moment) return;
+                    setTimeout(() => {
+                        // setTimeout here is to ensure the node is selected before we set the selectedMoment
+                        // Multiple changes can happen at once, and we want to ensure the selectedMoment is set after the node is selected
+                        selectedMoment.value = moment;
+                    }, 0);
+                    break;
+                default:
+                    break;
+            }
+        });
+    });
+}
+
 function updateSelectedScene() {
-    if (!selectedScene.value) return;
-    nodes.value = selectedScene.value.moments;
+    if (!selectedScene.value) nodes.value = [];
+    else nodes.value = selectedScene.value.moments;
+}
+
+function onClickAction() {
+    // Update all node internals
+    const allNodeIds =
+        selectedScene.value?.moments.map((moment) => moment.id) || [];
+    updateNodeInternals(allNodeIds);
 }
 
 function onNodesChange() {
@@ -164,23 +231,44 @@ function saveProject() {
 
 function onClickMoment(moment: Moment) {
     if (!vueFlowInstance.value) return;
-    // Pan to the moment's center
-    const node = vueFlowInstance.value.getNode(moment.id);
-    if (!node) return;
+    selectedMoment.value = moment;
 
-    const sidebarOffsetX =
-        ((document.querySelector('.sidebar')?.clientWidth || 0) + 32) / 2;
-    console.log('sidebarOffsetX', sidebarOffsetX);
+    const node = vueFlowInstance.value.getNode(moment.id);
+    setTimeout(() => {
+        panToNode(node);
+    }, 0);
+}
+
+function panToNode(node: GraphNode | undefined) {
+    if (!vueFlowInstance.value || !node) return;
+
+    // Pan to the node's center
+    const leftSidebarOffsetX =
+        ((document.querySelector('.sidebar--left')?.clientWidth || 0) + 32) / 2;
+
+    const rightSidebarOffsetX =
+        ((document.querySelector('.sidebar--right')?.clientWidth || 0) + 32) /
+        2;
+
     const centerOffsetX = (node.dimensions.width as number) / 2;
     const centerOffsetY = (node.dimensions.height as number) / 2;
     const center = {
-        x: node.position.x + centerOffsetX - sidebarOffsetX,
+        x:
+            node.position.x +
+            centerOffsetX -
+            leftSidebarOffsetX +
+            rightSidebarOffsetX,
         y: node.position.y + centerOffsetY
     };
     vueFlowInstance.value.setCenter(center.x, center.y, {
         duration: 200,
         zoom: 1
     });
+
+    vueFlowInstance.value.getSelectedNodes.forEach((node) => {
+        node.selected = false;
+    });
+    node.selected = true;
 }
 
 function onClickProjectSettings() {
@@ -189,6 +277,16 @@ function onClickProjectSettings() {
 
 function onClickSceneSettings() {
     // TODO: Implement scene settings modal
+}
+
+function onClickDialogueClose() {
+    if (!vueFlowInstance.value || !selectedMoment.value) return;
+    const selectedNode = vueFlowInstance.value.getNode(
+        selectedMoment.value?.id
+    );
+    if (!selectedNode) return;
+    selectedNode.selected = false;
+    selectedMoment.value = null;
 }
 
 function onClickAddScene() {
@@ -220,8 +318,10 @@ function onClickHome() {
     position: relative;
     padding: 2rem;
     display: flex;
+    flex-direction: row;
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: stretch;
+    justify-content: space-between;
 }
 
 .sidebar {
@@ -268,6 +368,18 @@ function onClickHome() {
 
 :deep(ul.moments) {
     flex: 1;
+}
+
+// Sidebar Transition
+.sidebar-transition-enter-active,
+.sidebar-transition-leave-active {
+    transition: all 0.2s ease;
+}
+
+.sidebar-transition-enter-from,
+.sidebar-transition-leave-to {
+    opacity: 0;
+    transform: translateX(2rem);
 }
 </style>
 

@@ -49,6 +49,7 @@ function onClickNewProject() {
     );
 
     projectsStore.addProject(newProject);
+
     // Open the new project in the editor
     router.push({
         name: PageName.PROJECT,

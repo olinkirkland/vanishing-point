@@ -1,9 +1,9 @@
 <template>
     <div class="app-layout">
         <router-view name="page" v-slot="{ Component, route }">
-            <transition name="page-transition" mode="out-in">
+            <Transition name="page-transition" mode="out-in">
                 <component :is="Component" />
-            </transition>
+            </Transition>
         </router-view>
         <the-modal-container />
     </div>
@@ -12,6 +12,7 @@
 <script setup lang="ts">
 import TheModalContainer from '@/components/modals/TheModalContainer.vue';
 import { initializeI18nInstance } from './i18n/locale';
+import { Transition } from 'vue';
 
 initializeI18nInstance();
 </script>
@@ -40,10 +41,9 @@ initializeI18nInstance();
 }
 
 // Transition
-.page-transition-move, /* apply transition to moving elements */
 .page-transition-enter-active,
 .page-transition-leave-active {
-    transition: all 0.5s ease;
+    transition: all 0.2s ease;
 }
 
 .page-transition-enter-from,

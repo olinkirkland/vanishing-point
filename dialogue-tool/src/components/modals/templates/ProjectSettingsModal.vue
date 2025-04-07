@@ -8,12 +8,12 @@
         <template v-slot:content>
             <div class="project-settings">
                 <ul class="list-description">
-                    <li><strong>Project ID:</strong> {{ project.id }}</li>
                     <li><strong>Project Name:</strong> {{ project.name }}</li>
                     <li>
                         <strong>Project Description:</strong> Lorem ipsum dolor
                         sit amet, consectetur adipiscing elit.
                     </li>
+                    <li><strong>Project ID:</strong> {{ project.id }}</li>
                     <li class="flex">
                         <Badge
                             color="var(--color-surface-alt)"
