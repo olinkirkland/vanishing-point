@@ -8,31 +8,29 @@
             <div class="node-content__header">
                 <!-- Incoming Handle -->
                 <Handle
-                    :id="`handle-incoming-${props.id}`"
+                    :id="props.id"
                     class="handle handle--incoming"
                     :position="Position.Left"
                     :type="'target'"
-                    :isConnectable="true"
                 />
             </div>
             <div class="node-content__body">
                 <p>{{ props.data.label }}</p>
-                <pre>{{ props.id }}</pre>
+                <!-- <pre>{{ props.id }}</pre> -->
             </div>
         </div>
 
         <!-- Outgoing Handles -->
-        <!-- TODO: Add a section & handle for each outgoing connection -->
         <ul class="options">
             <li v-for="(option, index) in props.data.options" :key="index">
                 <p>{{ option.label }}</p>
                 <Handle
-                    :id="`handle-outgoing-${option.id}`"
+                    :id="option.id"
                     class="handle handle--outgoing"
+                    :class="{ connected: option.nextDialogueId }"
                     :position="Position.Right"
                     :type="'source'"
-                    :isConnectable="true"
-                    :connectable="props.data.options.length < 1"
+                    :connectable="isConnectableOutgoing"
                 />
             </li>
         </ul>
@@ -41,7 +39,7 @@
 
 <script setup lang="ts">
 import Card from '@/components/ui/Card.vue';
-import type { NodeProps } from '@vue-flow/core';
+import type { GraphEdge, GraphNode, NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -62,6 +60,12 @@ watch(
     },
     { deep: true }
 );
+
+function isConnectableOutgoing(node: GraphNode, connectedEdges: GraphEdge[]) {
+    return true;
+    // Can only connect one outgoing edge per option
+    console.log('isConnectableOutgoing', node, connectedEdges);
+}
 
 function updateHeight() {
     const node = document.getElementById(`node-${props.id}`);
@@ -173,6 +177,18 @@ ul.options {
 
     &.connectable {
         cursor: pointer;
+    }
+
+    &.connected::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--color-primary);
     }
 }
 </style>

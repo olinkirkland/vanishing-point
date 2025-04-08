@@ -6,6 +6,7 @@
             :snap-to-grid="true"
             :snap-grid="[16, 16]"
             :zoom-on-double-click="false"
+            :connection-mode="ConnectionMode.Strict"
             v-on:nodes-change="onNodesChange"
         >
             <template
@@ -84,7 +85,7 @@
                         }"
                         @click="onClickDialogue(dialogue)"
                     >
-                        <i class="fas fa-comment-dots"></i>
+                        <i class="fas fa-sticky-note"></i>
                         <span>
                             <em>{{ dialogue.id.substring(0, 8) }}</em>
                         </span>
@@ -157,22 +158,23 @@ import Button from '@/components/ui/Button.vue';
 import Panel from '@/components/ui/Panel.vue';
 import ModalController from '@/controllers/modal-controller';
 import Dialogue, { DialogueOption } from '@/dialogue';
-import { updateNextDialogueId } from '@/dialogue';
 import Project from '@/project';
 import { PageName, router } from '@/router';
 import Scene from '@/scene';
 import { useProjectsStore } from '@/store/projects-store';
 import { Background } from '@vue-flow/background';
 import {
+    ConnectionMode,
     Edge,
     GraphNode,
     Node,
+    NodeChange,
     useVueFlow,
     VueFlow,
     VueFlowStore
 } from '@vue-flow/core';
 import { v4 as uuid } from 'uuid';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import SettingsModal from '../modals/templates/ProjectSettingsModal.vue';
 import List from '../ui/List.vue';
@@ -194,9 +196,11 @@ const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
 
 onPaneReady((vueFlow) => {
+    console.log('VueFlow instance ready', vueFlow);
+
+    // Set the initial nodes and edges
     vueFlowInstance.value = vueFlow;
     vueFlowInstance.value?.setViewport({ x: 0, y: 0, zoom: 1 });
-    listenToFlowChanges();
 
     // Listen for connect events to add edges
     vueFlowInstance.value?.onConnect((params) => {
@@ -205,21 +209,30 @@ onPaneReady((vueFlow) => {
             source: params.source,
             target: params.target,
             sourceHandle: params.sourceHandle,
-            targetHandle: params.targetHandle
+            targetHandle: params.targetHandle // Same as target, presumably
         });
+
+        // Set the nextDialogeId of the source dialogue to the target dialogue's id
+        const dialogue = selectedScene.value?.dialogues.find(
+            (dialogue) => dialogue.id === params.source
+        );
+        if (!dialogue) return;
+        const option = dialogue.data.options.find(
+            (option) => option.id === params.sourceHandle
+        );
+        if (!option) return;
+        option.nextDialogueId = params.target;
+        console.log('option', option);
     });
 
-    // Listen for edge changes
-    vueFlowInstance.value?.onEdgesChange((changes) => {
-        console.log('Edge changes:', changes.length);
-        updateNextDialogueId(edges.value, selectedScene.value?.dialogues || []);
-    });
+    // Select the first scene by default
+    selectedScene.value = project!.value.scenes[0] || null;
 });
 
-// When selectedScene.id changes, load the correct nodes and edges
+// Watch selectedScene.id, load the correct nodes and edges
 watch(() => selectedScene.value?.id, updateSelectedScene);
 
-// Watch for changes to the selectedDialogue label
+// Watch selectedDialogue label
 watch(
     () => selectedDialogue.value?.data.label,
     (newLabel) => {
@@ -234,49 +247,31 @@ watch(
     }
 );
 
-function listenToFlowChanges() {
-    // Listen for changes to the nodes
-    vueFlowInstance.value?.onNodesChange((changes) => {
-        changes.forEach((change) => {
-            // When selection change happens, change selectedDialogue
-            switch (change.type) {
-                case 'select':
-                    if (!change.selected) {
-                        selectedDialogue.value = null;
-                        return;
-                    }
-
-                    const selectedNode = vueFlowInstance.value?.getNode(
-                        change.id
-                    );
-                    if (!selectedNode) return;
-
-                    const dialogue = selectedScene.value?.dialogues.find(
-                        (dialogue) => dialogue.id === selectedNode.id
-                    );
-                    if (!dialogue) return;
-                    setTimeout(() => {
-                        // setTimeout here is to ensure the node is selected before we set the selectedDialogue
-                        // Multiple changes can happen at once, and we want to ensure the selectedDialogue is set after the node is selected
-                        selectedDialogue.value = dialogue;
-                    }, 0);
-                    break;
-                default:
-                    break;
-            }
-        });
-    });
-}
-
 function updateSelectedScene() {
-    if (!selectedScene.value) nodes.value = [];
-    else nodes.value = selectedScene.value.dialogues;
+    if (!selectedScene.value) {
+        nodes.value = [];
+        return;
+    }
+
+    nodes.value = selectedScene.value.dialogues;
+    edges.value = makeEdgesFromProject();
+
     selectedDialogue.value = null;
     if (!vueFlowInstance.value) return;
     vueFlowInstance.value.setCenter(0, 0, {
         duration: 0,
         zoom: 1
     });
+}
+
+function makeEdgesFromProject() {
+    if (!selectedScene.value) return [];
+    const edges: Edge[] = [];
+    // TODO: Implement edges from project
+    // Loop over each option in each dialogue and create an edge from it to its target (nextDialogueId)
+    // If the nextDialogueId is null, skip it
+
+    return edges;
 }
 
 function onClickAction() {
@@ -290,11 +285,38 @@ function onClickOption(option: DialogueOption) {
     // TODO: Implement option click action
 }
 
-function onNodesChange() {
-    saveProject();
+function onNodesChange(changes: NodeChange[]) {
+    changes.forEach((change) => {
+        // When selection change happens, change selectedDialogue
+        switch (change.type) {
+            case 'select':
+                if (!change.selected) {
+                    selectedDialogue.value = null;
+                    return;
+                }
+
+                const selectedNode = vueFlowInstance.value?.getNode(change.id);
+                if (!selectedNode) return;
+
+                const dialogue = selectedScene.value?.dialogues.find(
+                    (dialogue) => dialogue.id === selectedNode.id
+                );
+                if (!dialogue) return;
+                setTimeout(() => {
+                    // setTimeout here is to ensure the node is selected before we set the selectedDialogue
+                    // Multiple changes can happen at once, and we want to ensure the selectedDialogue is set after the node is selected
+                    selectedDialogue.value = dialogue;
+                }, 0);
+                break;
+            default:
+                break;
+        }
+    });
+
+    applyFlowToProject();
 }
 
-function saveProject() {
+function applyFlowToProject() {
     if (!project.value) return;
     const projectObject = toObject();
     project.value.scenes.forEach((scene) => {
@@ -384,7 +406,7 @@ function onClickAddDialogue() {
 function onClickAddOption() {
     if (!selectedDialogue.value) return;
     const newOption: DialogueOption = {
-        id: `option-${selectedDialogue.value.id}-${uuid()}`,
+        id: uuid(),
         label: 'New Option',
         nextDialogueId: null,
         condition: null

@@ -1,5 +1,4 @@
 import { v4 as uuid } from 'uuid';
-import { Edge } from '@vue-flow/core';
 
 export type DialogueOption = {
     id: string; // UUID
@@ -28,35 +27,4 @@ export default class Dialogue {
         };
         this.position = { x: 0, y: 0 };
     }
-}
-
-export function updateNextDialogueId(
-    edges: Edge[],
-    dialogues: Dialogue[]
-): void {
-    console.log('Updating nextDialogueId...');
-
-    // Reset all nextDialogueId values
-    dialogues.forEach((dialogue) => {
-        dialogue.data.options.forEach((option) => {
-            option.nextDialogueId = null;
-        });
-    });
-
-    // Update nextDialogueId based on edges
-    edges.forEach((edge) => {
-        const sourceDialogue = dialogues.find(
-            (dialogue) => dialogue.id === edge.source
-        );
-        const targetDialogue = dialogues.find(
-            (dialogue) => dialogue.id === edge.target
-        );
-
-        if (sourceDialogue && targetDialogue) {
-            const option = sourceDialogue.data.options.find(
-                (opt) => opt.id === edge.sourceHandle
-            );
-            if (option) option.nextDialogueId = targetDialogue.id;
-        }
-    });
 }
