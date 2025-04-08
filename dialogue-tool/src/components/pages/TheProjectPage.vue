@@ -107,11 +107,12 @@
                 </div>
 
                 <div class="input-box">
-                    <label for="dialogue-name">Dialogue Name</label>
+                    <label :for="`${selectedDialogue.id}-label`">Label</label>
                     <input
+                        :id="`${selectedDialogue.id}-label`"
                         type="text"
                         v-model="selectedDialogue.data.label"
-                        placeholder="Dialogue Name"
+                        placeholder="Label"
                     />
                 </div>
 
@@ -175,7 +176,8 @@ import { useRoute } from 'vue-router';
 import SettingsModal from '../modals/templates/ProjectSettingsModal.vue';
 import List from '../ui/List.vue';
 
-const { onPaneReady, toObject, addNodes, updateNodeInternals } = useVueFlow();
+const { onPaneReady, toObject, addNodes, updateNodeInternals, updateNode } =
+    useVueFlow();
 
 const route = useRoute();
 const projectsStore = useProjectsStore();
@@ -194,17 +196,42 @@ onPaneReady((vueFlow) => {
     vueFlowInstance.value = vueFlow;
     vueFlowInstance.value?.setViewport({ x: 0, y: 0, zoom: 1 });
     listenToFlowChanges();
+
+    // Listen for connect events to add edges
+    vueFlowInstance.value?.onConnect((params) => {
+        edges.value.push({
+            id: `edge-${params.source}-${params.target}`,
+            source: params.source,
+            target: params.target,
+            sourceHandle: params.sourceHandle,
+            targetHandle: params.targetHandle
+        });
+    });
 });
 
-// When selectedScene.id changes, update the nodes and edges
+// When selectedScene.id changes, load the correct nodes and edges
 watch(() => selectedScene.value?.id, updateSelectedScene);
+
+// Watch for changes to the selectedDialogue label
+watch(
+    () => selectedDialogue.value?.data.label,
+    (newLabel) => {
+        if (!selectedDialogue.value) return;
+
+        updateNode(selectedDialogue.value.id, {
+            data: {
+                ...selectedDialogue.value.data,
+                label: newLabel
+            }
+        });
+    }
+);
 
 function listenToFlowChanges() {
     // Listen for changes to the nodes
     vueFlowInstance.value?.onNodesChange((changes) => {
         changes.forEach((change) => {
             // When selection change happens, change selectedDialogue
-            console.log(change);
             switch (change.type) {
                 case 'select':
                     if (!change.selected) {
@@ -359,9 +386,12 @@ function onClickAddOption() {
     selectedDialogue.value.data.options.push(newOption);
 
     // Update the node
-    const node = vueFlowInstance.value?.getNode(selectedDialogue.value.id);
-    if (!node) return;
-    node.data.options.push(newOption);
+    updateNode(selectedDialogue.value.id, {
+        data: {
+            ...selectedDialogue.value.data,
+            options: selectedDialogue.value.data.options
+        }
+    });
 }
 
 function onClickRemoveOption(index: number) {
@@ -369,9 +399,12 @@ function onClickRemoveOption(index: number) {
     selectedDialogue.value.data.options.splice(index, 1);
 
     // Update the node
-    const node = vueFlowInstance.value?.getNode(selectedDialogue.value.id);
-    if (!node) return;
-    node.data.options.splice(index, 1);
+    updateNode(selectedDialogue.value.id, {
+        data: {
+            ...selectedDialogue.value.data,
+            options: selectedDialogue.value.data.options
+        }
+    });
 }
 
 function onClickHome() {

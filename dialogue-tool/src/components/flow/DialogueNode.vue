@@ -133,9 +133,8 @@ const y = computed(() => `${Math.round(props.position.y)}px`);
 
 // When selected
 .is-selected {
-    // border: 1px solid var(--color-primary);
     outline: 1px solid var(--color-primary);
-    outline-offset: 1px;
+    outline-offset: 0.5rem;
 }
 
 ul.options {

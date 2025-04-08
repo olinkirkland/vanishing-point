@@ -68,13 +68,22 @@ i {
 }
 
 .input-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+    width: 100%;
+
     label {
-        font-size: 1.4rem;
+        width: 100%;
+        font-weight: bold;
+        font-size: 1.2rem;
         background-color: var(--color-background);
         color: var(--color-on-surface);
     }
 
     input {
+        width: 100%;
         font-size: 1.6rem;
         padding: 0.8rem;
         border-radius: 5px;
@@ -88,4 +97,9 @@ i {
             border: 1px solid var(--color-primary);
         }
     }
+}
+
+* {
+    touch-action: manipulation; // Prevent double-tap zoom on mobile devices
+    -webkit-tap-highlight-color: transparent; // Prevent highlight on tap
 }
