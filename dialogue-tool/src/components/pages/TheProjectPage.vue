@@ -5,6 +5,7 @@
             :edges="edges"
             :snap-to-grid="true"
             :snap-grid="[16, 16]"
+            :zoom-on-double-click="false"
             v-on:nodes-change="onNodesChange"
         >
             <template
