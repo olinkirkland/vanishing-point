@@ -354,12 +354,23 @@ function onClickAddOption() {
         nextDialogueId: null,
         condition: null
     };
+
     selectedDialogue.value.data.options.push(newOption);
+
+    // Update the node
+    const node = vueFlowInstance.value?.getNode(selectedDialogue.value.id);
+    if (!node) return;
+    node.data.options.push(newOption);
 }
 
 function onClickRemoveOption(index: number) {
     if (!selectedDialogue.value) return;
     selectedDialogue.value.data.options.splice(index, 1);
+
+    // Update the node
+    const node = vueFlowInstance.value?.getNode(selectedDialogue.value.id);
+    if (!node) return;
+    node.data.options.splice(index, 1);
 }
 
 function onClickHome() {
