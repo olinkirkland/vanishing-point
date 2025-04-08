@@ -157,6 +157,7 @@ import Button from '@/components/ui/Button.vue';
 import Panel from '@/components/ui/Panel.vue';
 import ModalController from '@/controllers/modal-controller';
 import Dialogue, { DialogueOption } from '@/dialogue';
+import { updateNextDialogueId } from '@/dialogue';
 import Project from '@/project';
 import { PageName, router } from '@/router';
 import Scene from '@/scene';
@@ -206,6 +207,12 @@ onPaneReady((vueFlow) => {
             sourceHandle: params.sourceHandle,
             targetHandle: params.targetHandle
         });
+    });
+
+    // Listen for edge changes
+    vueFlowInstance.value?.onEdgesChange((changes) => {
+        console.log('Edge changes:', changes.length);
+        updateNextDialogueId(edges.value, selectedScene.value?.dialogues || []);
     });
 });
 

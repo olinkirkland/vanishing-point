@@ -32,6 +32,7 @@
                     :position="Position.Right"
                     :type="'source'"
                     :isConnectable="true"
+                    :connectable="props.data.options.length < 1"
                 />
             </li>
         </ul>
