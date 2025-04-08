@@ -2,8 +2,8 @@ import { v4 as uuid } from 'uuid';
 export type DialogueOption = {
     id: string; // UUID
     label: string; // Label for the option
-    condition: string; // Condition to show this option
-    nextDialogueId: string | null; // ID of the connected dialogue node
+    condition: string | null; // Condition to show this option (null if no condition)
+    nextDialogueId: string | null; // ID of the connected dialogue node (null if no connection)
 };
 
 export default class Dialogue {

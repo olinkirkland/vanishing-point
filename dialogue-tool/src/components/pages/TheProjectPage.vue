@@ -128,14 +128,19 @@
                         <em>No options yet.</em>
                     </li>
                     <li
-                        v-for="option in selectedDialogue?.data.options"
+                        v-for="(option, index) in selectedDialogue?.data
+                            .options"
                         :key="option.id"
                         @click="onClickOption(option)"
                     >
-                        <i class="fas fa-comment-dots"></i>
+                        <i class="fas fa-code-branch"></i>
                         <span>
                             <em>{{ option.id }}</em>
                         </span>
+                        <i
+                            class="fas fa-trash"
+                            @click.stop="onClickRemoveOption(index)"
+                        ></i>
                     </li>
                 </List>
             </Panel>
@@ -246,6 +251,10 @@ function onClickAction() {
     updateNodeInternals(allNodeIds);
 }
 
+function onClickOption(option: DialogueOption) {
+    // TODO: Implement option click action
+}
+
 function onNodesChange() {
     saveProject();
 }
@@ -342,9 +351,15 @@ function onClickAddOption() {
     const newOption: DialogueOption = {
         id: `option-${selectedDialogue.value.id}-${uuid()}`,
         label: 'New Option',
-        nextDialogueId: null
+        nextDialogueId: null,
+        condition: null
     };
     selectedDialogue.value.data.options.push(newOption);
+}
+
+function onClickRemoveOption(index: number) {
+    if (!selectedDialogue.value) return;
+    selectedDialogue.value.data.options.splice(index, 1);
 }
 
 function onClickHome() {
@@ -411,6 +426,18 @@ function onClickHome() {
 
 :deep(.sidebar ul.options) {
     min-height: 40rem;
+
+    > li {
+        display: flex;
+        justify-content: space-between;
+        white-space: nowrap;
+        overflow: hidden;
+        > span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: 100%;
+        }
+    }
 }
 
 // Sidebar Transition

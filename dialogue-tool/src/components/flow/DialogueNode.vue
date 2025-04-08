@@ -8,7 +8,7 @@
             <div class="node-content__header">
                 <!-- Incoming Handle -->
                 <Handle
-                    :id="`handle-${props.id}-incoming`"
+                    :id="`handle-incoming-${props.id}`"
                     class="handle handle--incoming"
                     :position="Position.Left"
                     :type="'target'"
@@ -24,20 +24,10 @@
         <!-- Outgoing Handles -->
         <!-- TODO: Add a section & handle for each outgoing connection -->
         <ul class="options">
-            <li>
-                <p>Condition 1</p>
+            <li v-for="(option, index) in props.data.options" :key="index">
+                <p>{{ option.label }}</p>
                 <Handle
-                    :id="`handle-${props.id}-condition-1`"
-                    class="handle handle--outgoing"
-                    :position="Position.Right"
-                    :type="'source'"
-                    :isConnectable="true"
-                />
-            </li>
-            <li>
-                <p>Condition 2</p>
-                <Handle
-                    :id="`handle-${props.id}-condition-2`"
+                    :id="`handle-outgoing-${option.id}`"
                     class="handle handle--outgoing"
                     :position="Position.Right"
                     :type="'source'"
