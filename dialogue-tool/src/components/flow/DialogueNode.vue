@@ -20,7 +20,11 @@
             </div>
             <div class="node-content__body">
                 <p>{{ props.data.label }}</p>
-                <pre>{{ props.id }}</pre>
+                <div class="flex">
+                    <i class="fas fa-code-branch"></i>
+                    <p>{{ props.data.prevDialogueIds.length }}</p>
+                </div>
+                <!-- <pre>{{ props.id }}</pre> -->
             </div>
         </div>
 
@@ -44,7 +48,6 @@
 <script setup lang="ts">
 import Card from '@/components/ui/Card.vue';
 import DialogueNodeProps from '@/dialogue-node-props';
-import type { GraphEdge, GraphNode } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { onMounted, ref, watch } from 'vue';
 

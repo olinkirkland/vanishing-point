@@ -213,7 +213,6 @@ import { Background } from '@vue-flow/background';
 import {
     ConnectionMode,
     Edge,
-    GraphNode,
     Node,
     NodeChange,
     useVueFlow,
@@ -226,8 +225,16 @@ import { useRoute } from 'vue-router';
 import SettingsModal from '../modals/templates/ProjectSettingsModal.vue';
 import List from '../ui/List.vue';
 
-const { onPaneReady, toObject, addNodes, updateNodeInternals, updateNode } =
-    useVueFlow();
+const {
+    onPaneReady,
+    toObject,
+    addNodes,
+    removeNodes,
+    updateNodeInternals,
+    updateNode,
+    addEdges,
+    removeEdges
+} = useVueFlow();
 
 const route = useRoute();
 const projectsStore = useProjectsStore();
@@ -258,14 +265,12 @@ onPaneReady((vueFlow) => {
     // Select the first scene by default
     selectedScene.value = project.value!.scenes[0] || null;
 
-    listenForConnectEvents();
+    listenForEdgeConnectEvents();
 });
 
 /**
- * Project and Flow management
+ * Manage Flow and Project Data
  */
-
-// Listen for when the flow dispatches connect events
 
 // Watch selectedScene.id, load the correct nodes and edges
 watch(() => selectedScene.value?.id, populateScene);
@@ -321,16 +326,18 @@ function applyFlowToProject() {
 }
 
 // Listen for connect events to add edges
-function listenForConnectEvents() {
+function listenForEdgeConnectEvents() {
     vueFlowInstance.value?.onConnect((params) => {
         // Add the new edge to the flow
-        edges.value.push({
+        const newEdge = {
             id: `edge-${params.source}-${params.target}`,
             source: params.source,
             target: params.target,
             sourceHandle: params.sourceHandle,
             targetHandle: params.targetHandle
-        });
+        };
+
+        addEdges([newEdge]);
 
         // Update the project with the new edge:
         const sourceDialogue = selectedScene.value?.dialogues.find(
@@ -384,7 +391,14 @@ function removeOption(index: number) {
     });
 
     // Remove any edges with the option id as sourceHandle
+    const edgesToRemove = edges.value.filter(
+        (edge) => edge.sourceHandle === optionId
+    );
+
+    removeEdges(edgesToRemove.map((edge) => edge.id));
+    // Remove the edges from the flow
     edges.value = edges.value.filter((edge) => edge.sourceHandle !== optionId);
+
     updateNodeInternals([selectedDialogue.value.id]);
 }
 
@@ -580,6 +594,11 @@ function onClickRemoveOption(index: number) {
 function onClickRemoveSelectedDialogue() {
     if (!selectedDialogue.value) return;
     while (selectedDialogue.value.data.options.length > 0) removeOption(0);
+
+    // Remove from flow
+    removeNodes([selectedDialogue.value.id]);
+
+    // Remove from project
     selectedScene.value?.dialogues.splice(
         selectedScene.value.dialogues.indexOf(selectedDialogue.value),
         1

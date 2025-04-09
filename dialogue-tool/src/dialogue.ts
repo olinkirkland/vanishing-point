@@ -25,7 +25,7 @@ export default class Dialogue {
         this.data = {
             label: 'Hello world!',
             prevDialogueIds: [],
-            options: [] 
+            options: []
         };
         this.position = { x: 0, y: 0 };
     }
