@@ -13,6 +13,7 @@
                     :position="Position.Left"
                     :type="'target'"
                 />
+                <p>{{ props.id }}</p>
             </div>
             <div class="node-content__body">
                 <p>{{ props.data.label }}</p>
@@ -24,6 +25,7 @@
         <ul class="options">
             <li v-for="(option, index) in props.data.options" :key="index">
                 <p>{{ option.label }}</p>
+                <p>{{ option.id }}</p>
                 <Handle
                     :id="option.id"
                     class="handle handle--outgoing"
@@ -41,7 +43,7 @@
 import Card from '@/components/ui/Card.vue';
 import type { GraphEdge, GraphNode, NodeProps } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps<NodeProps>();
 const adjustedHeight = ref<Number>(0);
@@ -62,9 +64,9 @@ watch(
 );
 
 function isConnectableOutgoing(node: GraphNode, connectedEdges: GraphEdge[]) {
+    console.log('isConnectableOutgoing', node, connectedEdges);
     return true;
     // Can only connect one outgoing edge per option
-    console.log('isConnectableOutgoing', node, connectedEdges);
 }
 
 function updateHeight() {
@@ -82,9 +84,6 @@ function updateHeight() {
     adjustedHeight.value = heightAsMultiplesOf16 + 16;
     node.style.height = `${adjustedHeight.value}px`;
 }
-
-const x = computed(() => `${Math.round(props.position.x)}px`);
-const y = computed(() => `${Math.round(props.position.y)}px`);
 </script>
 
 <style lang="scss" scoped>
@@ -95,6 +94,7 @@ const y = computed(() => `${Math.round(props.position.y)}px`);
 
 .card {
     overflow: hidden;
+    border-color: var(--color-on-surface);
 }
 
 .node-content {
@@ -122,8 +122,20 @@ const y = computed(() => `${Math.round(props.position.y)}px`);
         display: flex;
         width: 100%;
         height: 3.2rem;
-        background-color: var(--color-surface);
-        border-bottom: 1px solid var(--color-surface-alt);
+        background-color: var(--color-on-surface-alt);
+        border-bottom: 1px solid var(--color-on-surface);
+        color: var(--color-background);
+        align-items: center;
+        p {
+            text-align: left;
+            margin-left: 3.4rem;
+            margin-right: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: inherit;
+        }
+
         .handle {
             left: 1.6rem;
         }
@@ -144,15 +156,19 @@ const y = computed(() => `${Math.round(props.position.y)}px`);
 
 ul.options {
     margin-top: auto;
-    background-color: var(--color-surface);
+    background-color: var(--color-on-surface-alt);
     width: 100%;
 
     display: flex;
     flex-direction: column;
+    color: var(--color-background);
+    * {
+        color: inherit;
+    }
 
     li {
         padding: 0.8rem 1.2rem;
-        border-top: 1px solid var(--color-surface-alt);
+        border-top: 1px solid var(--color-on-surface);
         position: relative;
 
         p {

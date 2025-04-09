@@ -1,5 +1,6 @@
 <template>
     <div v-if="project" class="page page--project">
+        <!-- Vue Flow Component -->
         <VueFlow
             :nodes="nodes"
             :edges="edges"
@@ -21,17 +22,18 @@
             </template>
             <Background :gap="16" :offset="0" />
         </VueFlow>
+        <!-- Left Sidebar -->
         <Panel class="sidebar sidebar--left">
             <section class="sidebar__project">
                 <div class="flex">
-                    <Button @click="onClickHome">
+                    <Button @click="onClickGoHome">
                         <i class="fas fa-chevron-left"></i>
                         <span>Home</span>
                     </Button>
                 </div>
                 <div class="sidebar__header">
                     <h2>{{ project.name }}</h2>
-                    <Button @click="onClickProjectSettings" icon>
+                    <Button @click="onClickOpenProjectSettings" icon>
                         <i class="fas fa-cog"></i>
                     </Button>
                 </div>
@@ -64,7 +66,7 @@
             <section class="sidebar__scene" v-if="selectedScene">
                 <div class="sidebar__header">
                     <h2>{{ selectedScene.name }}</h2>
-                    <Button @click="onClickSceneSettings" icon>
+                    <Button @click="onClickOpenSceneSettings" icon>
                         <i class="fas fa-cog"></i>
                     </Button>
                 </div>
@@ -83,7 +85,7 @@
                         :class="{
                             'is-selected': selectedDialogue?.id === dialogue.id
                         }"
-                        @click="onClickDialogue(dialogue)"
+                        @click="onClickSelectDialogueInList(dialogue)"
                     >
                         <i class="fas fa-sticky-note"></i>
                         <span>
@@ -91,10 +93,6 @@
                         </span>
                     </li>
                 </List>
-                <!-- <Button @click="onClickAction" full-width>
-                    <i class="fas fa-play"></i>
-                    <span>Perform Action</span>
-                </Button> -->
             </section>
         </Panel>
         <!-- Dialogue Panel -->
@@ -102,7 +100,7 @@
             <Panel class="sidebar sidebar--right" v-if="selectedDialogue">
                 <div class="sidebar__header">
                     <h2>Dialogue</h2>
-                    <Button @click="onClickDialogueClose" icon>
+                    <Button @click="onClickCloseDialogue" icon>
                         <i class="fas fa-times"></i>
                     </Button>
                 </div>
@@ -116,8 +114,6 @@
                         placeholder="Label"
                     />
                 </div>
-
-                <pre>{{ selectedDialogue }}</pre>
 
                 <!-- Add option button -->
                 <Button @click="onClickAddOption" full-width>
@@ -134,20 +130,45 @@
                         v-for="(option, index) in selectedDialogue?.data
                             .options"
                         :key="option.id"
-                        @click="onClickOption(option)"
+                        :class="{ 'is-connected': option.nextDialogueId }"
                     >
-                        <i class="fas fa-code-branch"></i>
-                        <span>
-                            <em>{{ option.id }}</em>
-                        </span>
-                        <i
-                            class="fas fa-trash"
-                            @click.stop="onClickRemoveOption(index)"
-                        ></i>
+                        <div class="flex">
+                            <span>
+                                <em>{{ option.id }}</em>
+                            </span>
+                        </div>
+                        <div class="connected-node">
+                            <span v-if="option.nextDialogueId">
+                                <em>{{ option.nextDialogueId }}</em>
+                            </span>
+                            <span v-else>Not connected</span>
+                        </div>
+                        <div class="flex">
+                            <Button @click.stop="onClickRemoveOption(index)">
+                                <i class="fas fa-trash"></i>
+                                <span>Delete</span>
+                            </Button>
+                            <Button
+                                @click.stop="onClickUnlinkOption(index)"
+                                :disabled="!option.nextDialogueId"
+                            >
+                                <i class="fas fa-unlink"></i>
+                                <span>Unlink</span>
+                            </Button>
+                        </div>
                     </li>
                 </List>
+
+                <pre>{{ selectedDialogue }}</pre>
             </Panel>
         </Transition>
+    </div>
+    <div v-else class="page page--project-not-found">
+        <p>Project not found.</p>
+        <Button @click="onClickGoHome">
+            <i class="fas fa-chevron-left"></i>
+            <span>Home</span>
+        </Button>
     </div>
 </template>
 
@@ -174,7 +195,7 @@ import {
     VueFlowStore
 } from '@vue-flow/core';
 import { v4 as uuid } from 'uuid';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import SettingsModal from '../modals/templates/ProjectSettingsModal.vue';
 import List from '../ui/List.vue';
@@ -195,6 +216,12 @@ const selectedDialogue = ref<Dialogue | null>(null);
 const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
 
+/**
+ * Initialize the VueFlow instance and set up event listeners for connect events
+ * and node changes.
+ * This is where the VueFlow instance is created and the initial nodes and edges are set.
+ */
+
 onPaneReady((vueFlow) => {
     console.log('VueFlow instance ready', vueFlow);
 
@@ -212,6 +239,8 @@ onPaneReady((vueFlow) => {
             targetHandle: params.targetHandle // Same as target, presumably
         });
 
+        console.log('edges', edges.value.length);
+
         // Set the nextDialogeId of the source dialogue to the target dialogue's id
         const dialogue = selectedScene.value?.dialogues.find(
             (dialogue) => dialogue.id === params.source
@@ -226,13 +255,17 @@ onPaneReady((vueFlow) => {
     });
 
     // Select the first scene by default
-    selectedScene.value = project!.value.scenes[0] || null;
+    selectedScene.value = project.value!.scenes[0] || null;
 });
 
-// Watch selectedScene.id, load the correct nodes and edges
-watch(() => selectedScene.value?.id, updateSelectedScene);
+/**
+ * Watch for changes to the project and scene, and update the nodes and edges accordingly.
+ */
 
-// Watch selectedDialogue label
+// Watch selectedScene.id, load the correct nodes and edges
+watch(() => selectedScene.value?.id, populateScene);
+
+// Update a node when its data changes (label)
 watch(
     () => selectedDialogue.value?.data.label,
     (newLabel) => {
@@ -247,7 +280,12 @@ watch(
     }
 );
 
-function updateSelectedScene() {
+/**
+ * Project and Flow management
+ */
+
+// Load the nodes and edges when the scene changes
+function populateScene() {
     if (!selectedScene.value) {
         nodes.value = [];
         return;
@@ -264,6 +302,24 @@ function updateSelectedScene() {
     });
 }
 
+// Apply the flow data to the project data
+function applyFlowToProject() {
+    if (!project.value) return;
+    const projectObject = toObject();
+    project.value.scenes.forEach((scene) => {
+        scene.dialogues.forEach((dialogue) => {
+            const node = projectObject.nodes.find(
+                (node) => node.id === dialogue.id
+            );
+            if (node) {
+                dialogue.position = node.position;
+                dialogue.data = node.data;
+            }
+        });
+    });
+}
+
+// Populate the edges array from the project data
 function makeEdgesFromProject() {
     if (!selectedScene.value) return [];
     const edges: Edge[] = [];
@@ -274,17 +330,7 @@ function makeEdgesFromProject() {
     return edges;
 }
 
-function onClickAction() {
-    // Update all node internals
-    const allNodeIds =
-        selectedScene.value?.dialogues.map((dialogue) => dialogue.id) || [];
-    updateNodeInternals(allNodeIds);
-}
-
-function onClickOption(option: DialogueOption) {
-    // TODO: Implement option click action
-}
-
+// Set the selectedDialogue based on the selected node in the VueFlow instance
 function onNodesChange(changes: NodeChange[]) {
     changes.forEach((change) => {
         // When selection change happens, change selectedDialogue
@@ -316,32 +362,11 @@ function onNodesChange(changes: NodeChange[]) {
     applyFlowToProject();
 }
 
-function applyFlowToProject() {
-    if (!project.value) return;
-    const projectObject = toObject();
-    project.value.scenes.forEach((scene) => {
-        scene.dialogues.forEach((dialogue) => {
-            const node = projectObject.nodes.find(
-                (node) => node.id === dialogue.id
-            );
-            if (node) {
-                dialogue.position = node.position;
-                dialogue.data = node.data;
-            }
-        });
-    });
-}
+/**
+ * Utility functions
+ */
 
-function onClickDialogue(dialogue: Dialogue) {
-    if (!vueFlowInstance.value) return;
-    selectedDialogue.value = dialogue;
-
-    const node = vueFlowInstance.value.getNode(dialogue.id);
-    setTimeout(() => {
-        panToNode(node);
-    }, 0);
-}
-
+// Pan the viewport to the center of the node, taking into account the sidebars
 function panToNode(node: GraphNode | undefined) {
     if (!vueFlowInstance.value || !node) return;
 
@@ -367,29 +392,24 @@ function panToNode(node: GraphNode | undefined) {
         duration: 200,
         zoom: 1
     });
-
-    vueFlowInstance.value.getSelectedNodes.forEach((node) => {
-        node.selected = false;
-    });
-    node.selected = true;
 }
 
-function onClickProjectSettings() {
+/**
+ * Project UI handlers
+ */
+function onClickGoHome() {
+    router.push({ name: PageName.HOME });
+}
+
+function onClickOpenProjectSettings() {
     ModalController.open(SettingsModal, { project: project.value });
 }
 
-function onClickSceneSettings() {
+/**
+ * Scene UI handlers
+ */
+function onClickOpenSceneSettings() {
     // TODO: Implement scene settings modal
-}
-
-function onClickDialogueClose() {
-    if (!vueFlowInstance.value || !selectedDialogue.value) return;
-    const selectedNode = vueFlowInstance.value.getNode(
-        selectedDialogue.value?.id
-    );
-    if (!selectedNode) return;
-    selectedNode.selected = false;
-    selectedDialogue.value = null;
 }
 
 function onClickAddScene() {
@@ -401,6 +421,39 @@ function onClickAddDialogue() {
     const newDialogue = new Dialogue();
     selectedScene.value?.dialogues.push(newDialogue);
     addNodes([newDialogue]);
+}
+
+function onClickSelectDialogueInList(dialogue: Dialogue) {
+    if (!vueFlowInstance.value) return;
+    selectedDialogue.value = dialogue;
+
+    const node = vueFlowInstance.value.getNode(dialogue.id);
+    if (!node) return;
+
+    // Select the node
+    vueFlowInstance.value.getSelectedNodes.forEach((n) => {
+        n.selected = false;
+    });
+    node.selected = true;
+
+    setTimeout(() => {
+        // Wait for one frame to ensure the right panel is open before panning to the node
+        // Panning takes the UI into account (to center the node in the viewport)
+        panToNode(node);
+    }, 0);
+}
+
+/**
+ * Dialogue UI handlers
+ */
+function onClickCloseDialogue() {
+    if (!vueFlowInstance.value || !selectedDialogue.value) return;
+    const selectedNode = vueFlowInstance.value.getNode(
+        selectedDialogue.value?.id
+    );
+    if (!selectedNode) return;
+    selectedNode.selected = false;
+    selectedDialogue.value = null;
 }
 
 function onClickAddOption() {
@@ -423,9 +476,15 @@ function onClickAddOption() {
     });
 }
 
-function onClickRemoveOption(index: number) {
+function onClickUnlinkOption(index: number) {
     if (!selectedDialogue.value) return;
-    selectedDialogue.value.data.options.splice(index, 1);
+    const option = selectedDialogue.value.data.options[index];
+    if (!option) return;
+
+    option.nextDialogueId = null;
+    // Remove the edge with the option id as sourceHandle
+    edges.value = edges.value.filter((edge) => edge.sourceHandle !== option.id);
+    updateNodeInternals([selectedDialogue.value.id]);
 
     // Update the node
     updateNode(selectedDialogue.value.id, {
@@ -436,8 +495,22 @@ function onClickRemoveOption(index: number) {
     });
 }
 
-function onClickHome() {
-    router.push({ name: PageName.HOME });
+function onClickRemoveOption(index: number) {
+    if (!selectedDialogue.value) return;
+    const optionId = selectedDialogue.value.data.options[index].id;
+    selectedDialogue.value.data.options.splice(index, 1);
+
+    // Update the node
+    updateNode(selectedDialogue.value.id, {
+        data: {
+            ...selectedDialogue.value.data,
+            options: selectedDialogue.value.data.options
+        }
+    });
+
+    // Remove any edges with the option id as sourceHandle
+    edges.value = edges.value.filter((edge) => edge.sourceHandle !== optionId);
+    updateNodeInternals([selectedDialogue.value.id]);
 }
 </script>
 
@@ -502,14 +575,22 @@ function onClickHome() {
     min-height: 40rem;
 
     > li {
+        width: 100%;
         display: flex;
-        justify-content: space-between;
-        white-space: nowrap;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
         overflow: hidden;
+        cursor: unset;
+
         > span {
             text-overflow: ellipsis;
             overflow: hidden;
             width: 100%;
+        }
+
+        &.is-connected {
+            // TODO: Style connected options
         }
     }
 }
