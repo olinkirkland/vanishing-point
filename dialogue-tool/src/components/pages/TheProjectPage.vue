@@ -112,9 +112,17 @@
             <Panel class="sidebar sidebar--right" v-if="selectedDialogue">
                 <div class="sidebar__header">
                     <h2>Dialogue</h2>
-                    <Button @click="onClickCloseDialogue" icon>
-                        <i class="fas fa-times"></i>
-                    </Button>
+                    <div class="f">
+                        <Button
+                            @click="panToDialogueNode(selectedDialogue.id)"
+                            icon
+                        >
+                            <i class="fas fa-crosshairs"></i>
+                        </Button>
+                        <Button @click="onClickCloseDialogue" icon>
+                            <i class="fas fa-times"></i>
+                        </Button>
+                    </div>
                 </div>
 
                 <div class="input-box">
@@ -417,8 +425,10 @@ function onNodesChange(changes: NodeChange[]) {
  */
 
 // Pan the viewport to the center of the node, taking into account the sidebars
-function panToNode(node: GraphNode | undefined) {
-    if (!vueFlowInstance.value || !node) return;
+function panToDialogueNode(dialogueId: string) {
+    if (!vueFlowInstance.value) return;
+    const node = vueFlowInstance.value.getNode(dialogueId);
+    if (!node) return;
 
     // Pan to the node's center
     const leftSidebarOffsetX =
@@ -489,7 +499,7 @@ function onClickSelectDialogueInList(dialogue: Dialogue) {
     setTimeout(() => {
         // Wait for one frame to ensure the right panel is open before panning to the node
         // Panning takes the UI into account (to center the node in the viewport)
-        panToNode(node);
+        panToDialogueNode(dialogue.id);
     }, 0);
 }
 
