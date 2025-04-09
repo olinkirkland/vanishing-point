@@ -42,6 +42,14 @@ pre {
     min-height: 3.8rem;
 }
 
+.muted {
+    opacity: 0.5;
+}
+
+.full-width {
+    width: 100%;
+}
+
 .flex {
     display: flex;
     justify-content: flex-start;
@@ -50,6 +58,10 @@ pre {
 
     &.wrap {
         flex-wrap: wrap;
+    }
+
+    &.spread {
+        justify-content: space-between;
     }
 }
 

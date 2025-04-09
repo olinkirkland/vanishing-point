@@ -5,7 +5,7 @@
             'btn--icon': icon,
             'btn--primary': primary,
             'btn--disabled': disabled,
-            'btn--full-width': fullWidth
+            'full-width': fullWidth
         }"
         :disabled="disabled"
     >
@@ -31,11 +31,8 @@ button {
     background-color: transparent;
 }
 
-.btn--full-width {
-    width: 100%;
-    > .btn__content {
-        justify-content: center;
-    }
+.full-width > .btn__content {
+    justify-content: center;
 }
 
 .btn__content {

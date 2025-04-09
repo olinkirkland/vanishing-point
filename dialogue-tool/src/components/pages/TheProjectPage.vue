@@ -40,7 +40,7 @@
                 <p>{{ project.description }}</p>
                 <Button @click="onClickAddScene" full-width>
                     <i class="fas fa-plus"></i>
-                    <span>New Scene</span>
+                    <span>Add Scene</span>
                 </Button>
                 <List class="scenes">
                     <li v-if="project.scenes.length === 0">
@@ -59,7 +59,12 @@
                         }"
                     >
                         <i class="fas fa-layer-group"></i>
-                        <span>{{ scene.name }}</span>
+                        <div class="full-width flex spread">
+                            <span>{{ scene.name }}</span>
+                            <span class="muted">{{
+                                scene.dialogues.length
+                            }}</span>
+                        </div>
                     </li></List
                 >
             </section>
@@ -88,9 +93,16 @@
                         @click="onClickSelectDialogueInList(dialogue)"
                     >
                         <i class="fas fa-sticky-note"></i>
-                        <span>
+                        <div class="full-width flex spread">
                             <em>{{ dialogue.id.substring(0, 8) }}</em>
-                        </span>
+                            <span class="muted">
+                                {{
+                                    dialogue.data.options.filter(
+                                        (option) => option.nextDialogueId
+                                    ).length
+                                }}/{{ dialogue.data.options.length }}</span
+                            >
+                        </div>
                     </li>
                 </List>
             </section>
@@ -115,7 +127,7 @@
                     />
                 </div>
 
-                <!-- Add option button -->
+                <!-- Add Option button -->
                 <Button @click="onClickAddOption" full-width>
                     <i class="fas fa-plus"></i>
                     <span>Add Option</span>
@@ -160,6 +172,12 @@
                 </List>
 
                 <pre>{{ selectedDialogue }}</pre>
+
+                <!-- Remove Dialogue button -->
+                <Button @click="onClickRemoveSelectedDialogue" full-width>
+                    <i class="fas fa-trash"></i>
+                    <span>Delete Dialogue</span>
+                </Button>
             </Panel>
         </Transition>
     </div>
@@ -229,38 +247,17 @@ onPaneReady((vueFlow) => {
     vueFlowInstance.value = vueFlow;
     vueFlowInstance.value?.setViewport({ x: 0, y: 0, zoom: 1 });
 
-    // Listen for connect events to add edges
-    vueFlowInstance.value?.onConnect((params) => {
-        edges.value.push({
-            id: `edge-${params.source}-${params.target}`,
-            source: params.source,
-            target: params.target,
-            sourceHandle: params.sourceHandle,
-            targetHandle: params.targetHandle // Same as target, presumably
-        });
-
-        console.log('edges', edges.value.length);
-
-        // Set the nextDialogeId of the source dialogue to the target dialogue's id
-        const dialogue = selectedScene.value?.dialogues.find(
-            (dialogue) => dialogue.id === params.source
-        );
-        if (!dialogue) return;
-        const option = dialogue.data.options.find(
-            (option) => option.id === params.sourceHandle
-        );
-        if (!option) return;
-        option.nextDialogueId = params.target;
-        console.log('option', option);
-    });
-
     // Select the first scene by default
     selectedScene.value = project.value!.scenes[0] || null;
+
+    listenForConnectEvents();
 });
 
 /**
- * Watch for changes to the project and scene, and update the nodes and edges accordingly.
+ * Project and Flow management
  */
+
+// Listen for when the flow dispatches connect events
 
 // Watch selectedScene.id, load the correct nodes and edges
 watch(() => selectedScene.value?.id, populateScene);
@@ -280,10 +277,6 @@ watch(
     }
 );
 
-/**
- * Project and Flow management
- */
-
 // Load the nodes and edges when the scene changes
 function populateScene() {
     if (!selectedScene.value) {
@@ -302,7 +295,7 @@ function populateScene() {
     });
 }
 
-// Apply the flow data to the project data
+// Apply the flow (nodes and edges) to the project graph
 function applyFlowToProject() {
     if (!project.value) return;
     const projectObject = toObject();
@@ -319,6 +312,43 @@ function applyFlowToProject() {
     });
 }
 
+// Listen for connect events to add edges
+function listenForConnectEvents() {
+    vueFlowInstance.value?.onConnect((params) => {
+        // Add the new edge to the flow
+        edges.value.push({
+            id: `edge-${params.source}-${params.target}`,
+            source: params.source,
+            target: params.target,
+            sourceHandle: params.sourceHandle,
+            targetHandle: params.targetHandle
+        });
+
+        // Update the project with the new edge:
+        const sourceDialogue = selectedScene.value?.dialogues.find(
+            (dialogue) => dialogue.id === params.source
+        );
+        const targetDialogue = selectedScene.value?.dialogues.find(
+            (dialogue) => dialogue.id === params.target
+        );
+        if (!sourceDialogue || !targetDialogue) return;
+        const sourceOption = sourceDialogue.data.options.find(
+            (option) => option.id === params.sourceHandle
+        );
+        if (!sourceOption) return;
+
+        // 1. Set the source option's nextDialogueId to the target's id (incoming handle id is the same as the dialogue id)
+        sourceOption.nextDialogueId = targetDialogue.id;
+
+        // 2. Push the target's prevDialogueIds array with the source option's id
+        console.log(
+            `Setting targetDialogue (id: ${targetDialogue.id.substring(0, 8)})`,
+            `prevDialogueIds.push(${sourceOption.id})`
+        );
+        targetDialogue.data.prevDialogueIds.push(sourceOption.id);
+    });
+}
+
 // Populate the edges array from the project data
 function makeEdgesFromProject() {
     if (!selectedScene.value) return [];
@@ -328,6 +358,26 @@ function makeEdgesFromProject() {
     // If the nextDialogueId is null, skip it
 
     return edges;
+}
+
+// Remove an option (project/scene/dialogue/option) from the project
+// and the VueFlow instance
+function removeOption(index: number) {
+    if (!selectedDialogue.value) return;
+    const optionId = selectedDialogue.value.data.options[index].id;
+    selectedDialogue.value.data.options.splice(index, 1);
+
+    // Update the node
+    updateNode(selectedDialogue.value.id, {
+        data: {
+            ...selectedDialogue.value.data,
+            options: selectedDialogue.value.data.options
+        }
+    });
+
+    // Remove any edges with the option id as sourceHandle
+    edges.value = edges.value.filter((edge) => edge.sourceHandle !== optionId);
+    updateNodeInternals([selectedDialogue.value.id]);
 }
 
 // Set the selectedDialogue based on the selected node in the VueFlow instance
@@ -481,7 +531,25 @@ function onClickUnlinkOption(index: number) {
     const option = selectedDialogue.value.data.options[index];
     if (!option) return;
 
+    // Remove the source option from the target's prevDialogueIds array
+    const targetDialogue = selectedScene.value?.dialogues.find(
+        (dialogue) => dialogue.id === option.nextDialogueId
+    );
+
+    if (targetDialogue) {
+        console.log(targetDialogue.data.prevDialogueIds);
+        targetDialogue.data = {
+            ...targetDialogue.data,
+            prevDialogueIds: targetDialogue.data.prevDialogueIds.filter(
+                (id) => id !== option.id
+            )
+        };
+        console.log(targetDialogue.data.prevDialogueIds);
+    }
+
+    // Remove the nextDialogueId from the option
     option.nextDialogueId = null;
+
     // Remove the edge with the option id as sourceHandle
     edges.value = edges.value.filter((edge) => edge.sourceHandle !== option.id);
     updateNodeInternals([selectedDialogue.value.id]);
@@ -496,21 +564,16 @@ function onClickUnlinkOption(index: number) {
 }
 
 function onClickRemoveOption(index: number) {
+    removeOption(index);
+}
+
+function onClickRemoveSelectedDialogue() {
     if (!selectedDialogue.value) return;
-    const optionId = selectedDialogue.value.data.options[index].id;
-    selectedDialogue.value.data.options.splice(index, 1);
-
-    // Update the node
-    updateNode(selectedDialogue.value.id, {
-        data: {
-            ...selectedDialogue.value.data,
-            options: selectedDialogue.value.data.options
-        }
-    });
-
-    // Remove any edges with the option id as sourceHandle
-    edges.value = edges.value.filter((edge) => edge.sourceHandle !== optionId);
-    updateNodeInternals([selectedDialogue.value.id]);
+    while (selectedDialogue.value.data.options.length > 0) removeOption(0);
+    selectedScene.value?.dialogues.splice(
+        selectedScene.value.dialogues.indexOf(selectedDialogue.value),
+        1
+    );
 }
 </script>
 

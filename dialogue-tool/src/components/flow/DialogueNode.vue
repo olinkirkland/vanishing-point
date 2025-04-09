@@ -12,12 +12,15 @@
                     class="handle handle--incoming"
                     :position="Position.Left"
                     :type="'target'"
+                    :class="{
+                        connected: props.data.prevDialogueIds.length > 0
+                    }"
                 />
                 <p>{{ props.id }}</p>
             </div>
             <div class="node-content__body">
                 <p>{{ props.data.label }}</p>
-                <!-- <pre>{{ props.id }}</pre> -->
+                <pre>{{ props.id }}</pre>
             </div>
         </div>
 
@@ -32,7 +35,6 @@
                     :class="{ connected: option.nextDialogueId }"
                     :position="Position.Right"
                     :type="'source'"
-                    :connectable="isConnectableOutgoing"
                 />
             </li>
         </ul>
@@ -41,11 +43,12 @@
 
 <script setup lang="ts">
 import Card from '@/components/ui/Card.vue';
-import type { GraphEdge, GraphNode, NodeProps } from '@vue-flow/core';
+import DialogueNodeProps from '@/dialogue-node-props';
+import type { GraphEdge, GraphNode } from '@vue-flow/core';
 import { Handle, Position } from '@vue-flow/core';
 import { onMounted, ref, watch } from 'vue';
 
-const props = defineProps<NodeProps>();
+const props = defineProps<DialogueNodeProps>();
 const adjustedHeight = ref<Number>(0);
 
 onMounted(() => {
@@ -62,12 +65,6 @@ watch(
     },
     { deep: true }
 );
-
-function isConnectableOutgoing(node: GraphNode, connectedEdges: GraphEdge[]) {
-    console.log('isConnectableOutgoing', node, connectedEdges);
-    return true;
-    // Can only connect one outgoing edge per option
-}
 
 function updateHeight() {
     const node = document.getElementById(`node-${props.id}`);
