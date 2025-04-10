@@ -34,6 +34,8 @@ const onInput = (event: Event) => {
     border-radius: 5px;
     overflow: hidden;
     height: 3.2rem;
+    width: 100%;
+    min-height: 3.2rem;
     background-color: var(--color-background);
     border: 1px solid var(--color-surface-alt);
 

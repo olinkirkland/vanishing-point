@@ -51,7 +51,10 @@ const displayedProjects = ref<Project[]>([]);
 
 onMounted(() => {
     // Populate displayedProjects with the projects from the store
-    displayedProjects.value = [...projectsStore.projects];
+    displayedProjects.value = [...projectsStore.projects].sort((a, b) => {
+        // Sort by last modified date (most recent first)
+        return b.updatedAt - a.updatedAt;
+    });
 });
 
 function onClickNewProject() {

@@ -49,7 +49,8 @@ button {
     cursor: pointer;
     transition: all 0.1s ease-in-out;
 
-    &:active {
+    &:active,
+    &:focus {
         transition: unset;
         filter: brightness(0.95);
         top: 0;

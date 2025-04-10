@@ -3,7 +3,6 @@
         class="vue-flow__node-default"
         :class="{ dragging: props.dragging, 'is-selected': props.selected }"
         :id="`node-${props.id}`"
-        @mousedown="onMouseDown"
     >
         <div class="node-content">
             <div class="node-content__header">
@@ -25,7 +24,6 @@
                     <i class="fas fa-code-branch"></i>
                     <p>{{ props.data.prevDialogueIds.length }}</p>
                 </div>
-                <!-- <pre>{{ props.id }}</pre> -->
             </div>
         </div>
 
@@ -84,12 +82,6 @@ function updateHeight() {
     const heightAsMultiplesOf16 = Math.floor(height / 16) * 16;
     adjustedHeight.value = heightAsMultiplesOf16 + 16;
     node.style.height = `${adjustedHeight.value}px`;
-}
-
-function onMouseDown(event: MouseEvent) {
-    console.log('Mouse down on node', props.id);
-    event.stopPropagation();
-    event.preventDefault();
 }
 </script>
 

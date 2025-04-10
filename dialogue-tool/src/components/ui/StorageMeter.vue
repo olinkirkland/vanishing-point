@@ -1,7 +1,7 @@
 <template>
     <div class="storage-meter">
         <i class="muted fas fa-hdd"></i>
-        <p class="percentage muted">{{ percentage.toFixed(2) }}%</p>
+        <p class="percentage muted">{{ percentageText }}%</p>
         <div class="progress-bar">
             <div class="progress" :style="{ width: percentage + '%' }"></div>
         </div>
@@ -29,6 +29,11 @@ const props = defineProps({
 
 const percentage = computed(() => {
     return (props.usedBytes / props.maxBytes) * 100;
+});
+
+const percentageText = computed(() => {
+    if (percentage.value < 1) return '<1';
+    return percentage.value.toFixed(2);
 });
 </script>
 

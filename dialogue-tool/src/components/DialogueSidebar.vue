@@ -14,15 +14,12 @@
                 </div>
             </div>
 
-            <div class="input-box">
-                <label :for="`${selectedDialogue.id}-label`">Label</label>
-                <input
-                    :id="`${selectedDialogue.id}-label`"
-                    type="text"
-                    v-model="selectedDialogue.data.label"
-                    placeholder="Label"
-                />
-            </div>
+            <InputGroup
+                v-model="selectedDialogue.data.label"
+                placeholder="Project name"
+            >
+                <span>Label</span>
+            </InputGroup>
 
             <!-- Add Option button -->
             <Button @click="onClickAddOption" full-width>
@@ -83,6 +80,7 @@ import Project from '@/project';
 import Scene from '@/scene';
 import { useProjectsStore } from '@/store/projects-store';
 import { v4 as uuid } from 'uuid';
+import InputGroup from './ui/InputGroup.vue';
 
 const props = defineProps<{
     project: Project;
@@ -146,6 +144,7 @@ function onClickUnlinkOption(id: string) {
 
 function onClickRemoveSelectedDialogue() {
     if (!props.selectedDialogue) return;
+    emit('deselectDialogue');
     projectStore.removeDialogue(
         props.project.id,
         props.selectedScene?.id,
