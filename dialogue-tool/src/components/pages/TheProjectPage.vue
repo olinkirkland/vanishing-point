@@ -81,7 +81,7 @@ const flowInstance = ref<VueFlowStore | null>(null);
 const projectsStore = useProjectsStore();
 const projectId = ref<string | null>((route.params.id as string) || null);
 const project = ref<Project | null>(
-    projectsStore.getProjectById(projectId.value as string) || null
+    projectsStore.getProject(projectId.value as string) || null
 );
 
 const selectedScene = ref<Scene | null>(null);
@@ -98,6 +98,20 @@ onPaneReady((vueFlowStore: VueFlowStore) => {
 
 // Watch selectedScene.id, load the correct nodes and edges
 watch(() => selectedScene.value?.id, populateScene);
+
+// Watch for changes in the project, and update the updatedAt field
+// Unless the updatedAt field itself is changed, in which case we don't want to trigger the watch again
+watch(
+    () => project.value,
+    (newProject) => {
+        if (!newProject) return;
+        const oldUpdatedAt = project.value?.updatedAt || 0;
+        const newUpdatedAt = newProject.updatedAt || 0;
+        if (oldUpdatedAt !== newUpdatedAt) return; // Don't trigger if updatedAt is changed
+        newProject.updatedAt = Date.now();
+    },
+    { deep: true }
+);
 
 // Update a node when any of its data changes
 watch(

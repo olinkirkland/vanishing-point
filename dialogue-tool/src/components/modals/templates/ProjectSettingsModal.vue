@@ -7,14 +7,21 @@
         </template>
         <template v-slot:content>
             <div class="project-settings">
-                <ul class="list-description">
-                    <li><strong>Project Name:</strong> {{ project.name }}</li>
-                    <li>
-                        <strong>Project Description:</strong> Lorem ipsum dolor
-                        sit amet, consectetur adipiscing elit.
-                    </li>
-                    <li><strong>Project ID:</strong> {{ project.id }}</li>
-                    <li class="flex">
+                <section>
+                    <p><strong>Project ID:</strong> {{ project.id }}</p>
+                    <InputGroup
+                        v-model="project.name"
+                        placeholder="Project name"
+                    >
+                        <span>Name</span>
+                    </InputGroup>
+                    <InputGroup
+                        v-model="project.description"
+                        placeholder="Project description"
+                    >
+                        <span>Description</span>
+                    </InputGroup>
+                    <div class="flex">
                         <Badge
                             color="var(--color-surface-alt)"
                             :useLightText="true"
@@ -35,14 +42,12 @@
                             <span
                                 >Modified
                                 {{
-                                    new Date(
-                                        project.updatedAt
-                                    ).toLocaleDateString()
+                                    new Date(project.updatedAt).toLocaleString()
                                 }}</span
                             >
                         </Badge>
-                    </li>
-                </ul>
+                    </div>
+                </section>
 
                 <Button @click="onClickDeleteProject">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -58,6 +63,7 @@ import ModalFrame from '@/components/modals/ModalFrame.vue';
 import ModalHeader from '@/components/modals/ModalHeader.vue';
 import Badge from '@/components/ui/Badge.vue';
 import Button from '@/components/ui/Button.vue';
+import InputGroup from '@/components/ui/InputGroup.vue';
 import ModalController from '@/controllers/modal-controller';
 import { t } from '@/i18n/locale';
 import Project from '@/project';
@@ -80,7 +86,7 @@ function onClickDeleteProject() {
         isConfirmButtonCta: true,
         onConfirm: () => {
             router.push({ name: PageName.HOME });
-            useProjectsStore().removeProjectById(props.project.id);
+            useProjectsStore().removeProject(props.project.id);
             ModalController.close();
         },
         onCancel: () => {
@@ -104,12 +110,10 @@ function onClickDeleteProject() {
     height: 100%;
 }
 
-ul.list-description {
+section {
     display: flex;
+    width: 40rem;
     flex-direction: column;
     gap: 0.8rem;
-}
-
-@media (max-width: 768px) {
 }
 </style>

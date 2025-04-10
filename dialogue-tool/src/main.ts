@@ -3,11 +3,12 @@ import { router } from '@/router';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import App from './App.vue';
+import Card from './components/ui/Card.vue';
+import InputGroup from './components/ui/InputGroup.vue';
+import List from './components/ui/List.vue';
+import Panel from './components/ui/Panel.vue';
 import i18n from './i18n/locale';
 import { useProjectsStore } from './store/projects-store';
-import Panel from './components/ui/Panel.vue';
-import Card from './components/ui/Card.vue';
-import List from './components/ui/List.vue';
 
 // Create the app
 const app = createApp(App);
@@ -23,6 +24,7 @@ app.component('Button', Button);
 app.component('Panel', Panel);
 app.component('Card', Card);
 app.component('List', List);
+app.component('InputGroup', InputGroup);
 
 // Load projects from localStorage
 const projectsStore = useProjectsStore();

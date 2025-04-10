@@ -11,10 +11,11 @@
             <div class="sidebar__header">
                 <h2>{{ project.name }}</h2>
                 <Button @click="onClickOpenProjectSettings" icon>
-                    <i class="fas fa-cog"></i>
+                    <i class="fas fa-edit"></i>
                 </Button>
             </div>
-            <p>{{ project.description }}</p>
+            <p v-if="project.description">{{ project.description }}</p>
+            <p v-else><em> No description yet. </em></p>
             <Button @click="onClickAddScene" full-width>
                 <i class="fas fa-plus"></i>
                 <span>Add Scene</span>
@@ -43,7 +44,7 @@
             <div class="sidebar__header">
                 <h2>{{ selectedScene.name }}</h2>
                 <Button @click="onClickOpenSceneSettings" icon>
-                    <i class="fas fa-cog"></i>
+                    <i class="fas fa-edit"></i>
                 </Button>
             </div>
             <p>{{ selectedScene.description }}</p>
@@ -86,8 +87,9 @@ import Dialogue from '@/dialogue';
 import Project from '@/project';
 import { PageName, router } from '@/router';
 import Scene from '@/scene';
-import ProjectSettingsModal from './modals/templates/ProjectSettingsModal.vue';
 import { useProjectsStore } from '@/store/projects-store';
+import ProjectSettingsModal from './modals/templates/ProjectSettingsModal.vue';
+import SceneSettingsModal from './modals/templates/SceneSettingsModal.vue';
 
 const props = defineProps<{
     project: Project;
@@ -107,8 +109,10 @@ function onClickOpenProjectSettings() {
 }
 
 function onClickOpenSceneSettings() {
-    // TODO: Implement scene settings modal
-    // ModalController.open(SceneSettingsModal, { scene: props.selectedScene });
+    ModalController.open(SceneSettingsModal, {
+        project: props.project,
+        scene: props.selectedScene
+    });
 }
 
 function onClickAddScene() {
@@ -157,6 +161,7 @@ function onClickSelectDialogue(dialogue: Dialogue) {
 }
 
 section {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -169,7 +174,6 @@ section {
 }
 
 .sidebar__scene {
-    width: 100%;
     flex: 1;
     overflow: hidden;
 }

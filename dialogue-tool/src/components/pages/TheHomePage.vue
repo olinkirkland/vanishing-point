@@ -17,11 +17,11 @@
                 </Button>
             </div>
         </Panel>
-        <Panel v-if="projects.length > 0" class="projects-panel">
+        <Panel v-if="displayedProjects.length > 0" class="projects-panel">
             <h2>Projects</h2>
             <ul class="projects-list">
                 <ProjectCard
-                    v-for="project in projects"
+                    v-for="project in displayedProjects"
                     :project="project"
                     :key="project.id"
                 ></ProjectCard>
@@ -37,10 +37,16 @@ import Panel from '@/components/ui/Panel.vue';
 import Project from '@/project';
 import { PageName, router } from '@/router';
 import { useProjectsStore } from '@/store/projects-store';
+import { onMounted, ref } from 'vue';
 import ProjectCard from '../ProjectCard.vue';
 
 const projectsStore = useProjectsStore();
-const projects = projectsStore.projects;
+const displayedProjects = ref<Project[]>([]);
+
+onMounted(() => {
+    // Populate displayedProjects with the projects from the store
+    displayedProjects.value = [...projectsStore.projects];
+});
 
 function onClickNewProject() {
     const newProject = new Project(

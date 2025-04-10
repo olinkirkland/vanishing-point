@@ -5,16 +5,16 @@ export default class Project {
     id: string;
     name: string;
     description: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: number;
+    updatedAt: number;
     scenes: Scene[];
 
     constructor(name: string, description: string) {
         this.id = uuid();
         this.name = name;
         this.description = description;
-        this.createdAt = new Date();
-        this.updatedAt = new Date();
+        this.createdAt = Date.now();
+        this.updatedAt = Date.now();
         this.scenes = [];
     }
 }

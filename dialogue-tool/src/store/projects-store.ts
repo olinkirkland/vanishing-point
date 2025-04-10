@@ -23,7 +23,7 @@ export const useProjectsStore = defineStore('projects', () => {
     }
 
     // Get a project by ID
-    function getProjectById(id: string): Project | undefined {
+    function getProject(id: string): Project | undefined {
         return projects.value.find((project) => project.id === id);
     }
 
@@ -33,20 +33,20 @@ export const useProjectsStore = defineStore('projects', () => {
     }
 
     // Remove a project by ID
-    function removeProjectById(id: string): void {
+    function removeProject(id: string): void {
         projects.value = projects.value.filter((project) => project.id !== id);
     }
 
     // Add a scene to a project
     function addScene(projectId: string, scene: Scene): void {
-        const project = getProjectById(projectId);
+        const project = getProject(projectId);
         if (!project) return; // Project not found
         project.scenes.push(scene);
     }
 
     // Remove a scene from a project
     function removeScene(projectId: string, sceneId: string): void {
-        const project = getProjectById(projectId);
+        const project = getProject(projectId);
         if (!project) return; // Project not found
         project.scenes = project.scenes.filter((scene) => scene.id !== sceneId);
     }
@@ -57,7 +57,7 @@ export const useProjectsStore = defineStore('projects', () => {
         sceneId: string,
         dialogue: Dialogue
     ): void {
-        const project = getProjectById(projectId);
+        const project = getProject(projectId);
         if (!project) return; // Project not found
         const scene = project.scenes.find((s) => s.id === sceneId);
         if (!scene) return; // Scene not found
@@ -70,7 +70,7 @@ export const useProjectsStore = defineStore('projects', () => {
         sceneId: string,
         dialogueId: string
     ): void {
-        const project = getProjectById(projectId);
+        const project = getProject(projectId);
         if (!project) return; // Project not found
         const scene = project.scenes.find((s) => s.id === sceneId);
         if (!scene) return; // Scene not found
@@ -90,7 +90,7 @@ export const useProjectsStore = defineStore('projects', () => {
         dialogueId: string,
         option: DialogueOption
     ): void {
-        const project = getProjectById(projectId);
+        const project = getProject(projectId);
         if (!project) return; // Project not found
         const scene = project.scenes.find((s) => s.id === sceneId);
         if (!scene) return; // Scene not found
@@ -106,7 +106,7 @@ export const useProjectsStore = defineStore('projects', () => {
         dialogueId: string,
         optionId: string
     ): void {
-        const project = getProjectById(projectId);
+        const project = getProject(projectId);
         if (!project) return; // Project not found
         const scene = project.scenes.find((s) => s.id === sceneId);
         if (!scene) return; // Scene not found
@@ -124,9 +124,9 @@ export const useProjectsStore = defineStore('projects', () => {
     return {
         projects,
         loadProjectsFromLocalStorage,
-        getProjectById,
+        getProject,
         addProject,
-        removeProjectById,
+        removeProject,
         addScene,
         removeScene,
         addDialogue,
