@@ -27,13 +27,19 @@
                 ></ProjectCard>
             </ul>
         </Panel>
-        <footer></footer>
+        <footer>
+            <StorageMeter
+                :usedBytes="projectsStore.bytesUsedEstimate()"
+                :maxBytes="5 * 1024 * 1024"
+            />
+        </footer>
     </div>
 </template>
 
 <script setup lang="ts">
 import Button from '@/components/ui/Button.vue';
 import Panel from '@/components/ui/Panel.vue';
+import StorageMeter from '@/components/ui/StorageMeter.vue';
 import Project from '@/project';
 import { PageName, router } from '@/router';
 import { useProjectsStore } from '@/store/projects-store';
@@ -94,5 +100,15 @@ h1.logo {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.2rem;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    padding: 1.2rem;
 }
 </style>

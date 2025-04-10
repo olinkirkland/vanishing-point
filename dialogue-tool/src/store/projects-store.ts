@@ -22,6 +22,13 @@ export const useProjectsStore = defineStore('projects', () => {
         projects.value = storedProjects ? JSON.parse(storedProjects) : [];
     }
 
+    // Estimate bytes used by projects in localStorage
+    function bytesUsedEstimate() {
+        const jsonString = JSON.stringify(projects.value);
+        const bytesCount = new Blob([jsonString]).size;
+        return bytesCount;
+    }
+
     // Get a project by ID
     function getProject(id: string): Project | undefined {
         return projects.value.find((project) => project.id === id);
@@ -124,6 +131,7 @@ export const useProjectsStore = defineStore('projects', () => {
     return {
         projects,
         loadProjectsFromLocalStorage,
+        bytesUsedEstimate,
         getProject,
         addProject,
         removeProject,
