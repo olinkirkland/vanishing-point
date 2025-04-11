@@ -123,6 +123,8 @@ function onClickAddOption() {
 
 function onClickRemoveOption(id: string) {
     if (!props.selectedDialogue) return;
+    // TODO: Remove edge
+
     projectStore.removeOption(
         props.project.id,
         props.selectedScene?.id,
@@ -133,12 +135,7 @@ function onClickRemoveOption(id: string) {
 
 function onClickUnlinkOption(id: string) {
     if (!props.selectedDialogue) return;
-    projectStore.unlinkOption(
-        props.project.id,
-        props.selectedScene?.id,
-        props.selectedDialogue.id,
-        id
-    );
+    // TODO: Remove edge
 }
 
 function onClickRemoveSelectedDialogue() {

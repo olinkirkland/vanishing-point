@@ -3,7 +3,7 @@
         <!-- Vue Flow Component -->
         <VueFlow
             :nodes="selectedScene?.dialogues"
-            :edges="edges"
+            :edges="selectedScene?.edges"
             :snap-to-grid="true"
             :snap-grid="[16, 16]"
             :zoom-on-double-click="false"
@@ -71,7 +71,6 @@ import {
     Connection,
     ConnectionMode,
     Edge,
-    MarkerType,
     NodeChange,
     useVueFlow,
     VueFlow,
@@ -83,7 +82,7 @@ import DialogueSidebar from '../DialogueSidebar.vue';
 import ProjectSidebar from '../ProjectSidebar.vue';
 import CustomAnimatedEdge from '../flow/CustomAnimatedEdge.vue';
 
-const { onPaneReady, toObject, updateNode, addEdges } = useVueFlow();
+const { onPaneReady, toObject, updateNode } = useVueFlow();
 
 const route = useRoute();
 
@@ -97,8 +96,6 @@ const project = ref<Project | null>(
 
 const selectedScene = ref<Scene | null>(null);
 const selectedDialogue = ref<Dialogue | null>(null);
-const edges = ref<Edge[]>([]);
-
 const seekingNodeId = ref<string | null>(null); // Used to track the node being dragged from
 
 // Initialize once the VueFlow instance is ready
@@ -271,40 +268,14 @@ function onConnect(params: Edge | Connection) {
     const sourceNodeId = edge.source;
     const sourceOptionId = edge.sourceHandle;
     const targetNodeId = edge.target;
-
-    console.log('onConnect', {
+    if (!sourceOptionId) return;
+    useProjectsStore().addEdge(
+        project.value!.id,
+        selectedScene.value!.id,
         sourceNodeId,
         sourceOptionId,
         targetNodeId
-    });
-
-    // Link the option
-    useProjectsStore().linkOption(
-        projectId.value as string,
-        selectedScene.value?.id as string,
-        sourceNodeId,
-        sourceOptionId as string,
-        targetNodeId
     );
-
-    addEdge(edge);
-}
-
-function addEdge(edge: Edge) {
-    edge.markerEnd = {
-        type: MarkerType.Arrow,
-        width: 10,
-        height: 10,
-        strokeWidth: 2,
-        color: 'var(--color-on-surface)'
-    };
-
-    edge.style = {
-        stroke: 'var(--color-on-surface)',
-        strokeWidth: 2
-    };
-
-    addEdges([edge]);
 }
 </script>
 

@@ -79,6 +79,28 @@
                 </li>
             </List>
         </section>
+        <section class="sidebar__edges" v-if="selectedScene">
+            <h2>Edges</h2>
+            <List class="edges">
+                <li v-if="selectedScene.edges.length === 0">
+                    <em>No edges yet.</em>
+                </li>
+                <li v-for="edge in selectedScene.edges" :key="edge.id">
+                    <p>source</p>
+                    <Badge color="var(--color-surface-alt)">
+                        <span>{{ edge.source }}</span></Badge
+                    >
+                    <p>sourceHandle</p>
+                    <Badge color="var(--color-surface-alt)">
+                        <span>{{ edge.sourceHandle }}</span></Badge
+                    >
+                    <p>target</p>
+                    <Badge color="var(--color-surface-alt)">
+                        <span>{{ edge.target }}</span></Badge
+                    >
+                </li></List
+            >
+        </section>
     </Panel>
 </template>
 
@@ -91,6 +113,7 @@ import Scene from '@/scene';
 import { useProjectsStore } from '@/store/projects-store';
 import ProjectSettingsModal from './modals/templates/ProjectSettingsModal.vue';
 import SceneSettingsModal from './modals/templates/SceneSettingsModal.vue';
+import Badge from './ui/Badge.vue';
 
 const props = defineProps<{
     project: Project;
@@ -174,11 +197,26 @@ section {
 
 .sidebar__scene {
     flex: 1;
+    min-height: 24rem;
     overflow: hidden;
 }
 
+.sidebar__edges {
+    flex: 1;
+    overflow: hidden;
+}
+
+:deep(ul.edges) {
+    flex-direction: column;
+    flex: 1;
+
+    li {
+        flex-direction: column;
+    }
+}
+
 :deep(ul.scenes) {
-    max-height: 20rem;
+    max-height: 24rem;
 }
 
 :deep(ul.dialogue) {

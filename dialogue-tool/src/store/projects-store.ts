@@ -1,6 +1,7 @@
 import Dialogue, { DialogueOption } from '@/dialogue';
 import Project from '@/project';
 import Scene from '@/scene';
+import { Edge, MarkerType } from '@vue-flow/core';
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
@@ -128,42 +129,42 @@ export const useProjectsStore = defineStore('projects', () => {
         );
     }
 
-    // Link an option
-    function linkOption(
+    // Add an edge
+    function addEdge(
         projectId: string,
         sceneId: string,
-        dialogueId: string,
-        optionId: string,
-        nextDialogueId: string
+        sourceId: string,
+        sourceHandleId: string,
+        targetId: string // Not a handle
     ): void {
+        const edge: Edge = {
+            id: `${sourceHandleId}__${targetId}`,
+            source: sourceId,
+            sourceHandle: sourceHandleId,
+            target: targetId,
+            markerEnd: {
+                type: MarkerType.Arrow,
+                width: 10,
+                height: 10,
+                strokeWidth: 2,
+                color: 'var(--color-on-surface)'
+            },
+            style: {
+                stroke: 'var(--color-on-surface)',
+                strokeWidth: 2
+            }
+        };
+
         const project = getProject(projectId);
         if (!project) return; // Project not found
         const scene = project.scenes.find((s) => s.id === sceneId);
         if (!scene) return; // Scene not found
-        const dialogue = scene.dialogues.find((d) => d.id === dialogueId);
-        if (!dialogue) return; // Dialogue not found
-        const option = dialogue.data.options.find((o) => o.id === optionId);
-        if (!option) return; // Option not found
-        console.log('linking option', optionId, '->', nextDialogueId);
-        option.nextDialogueId = nextDialogueId;
+        scene.edges.push(edge);
     }
 
-    // Unlink an option
-    function unlinkOption(
-        projectId: string,
-        sceneId: string,
-        dialogueId: string,
-        optionId: string
-    ): void {
-        const project = getProject(projectId);
-        if (!project) return; // Project not found
-        const scene = project.scenes.find((s) => s.id === sceneId);
-        if (!scene) return; // Scene not found
-        const dialogue = scene.dialogues.find((d) => d.id === dialogueId);
-        if (!dialogue) return; // Dialogue not found
-        const option = dialogue.data.options.find((o) => o.id === optionId);
-        if (!option) return; // Option not found
-        option.nextDialogueId = null;
+    // Remove an edge
+    function removeEdge(edgeId: string): void {
+        // TODO
     }
 
     return {
@@ -179,7 +180,7 @@ export const useProjectsStore = defineStore('projects', () => {
         removeDialogue,
         addOption,
         removeOption,
-        linkOption,
-        unlinkOption
+        addEdge,
+        removeEdge
     };
 });
