@@ -128,6 +128,44 @@ export const useProjectsStore = defineStore('projects', () => {
         );
     }
 
+    // Link an option
+    function linkOption(
+        projectId: string,
+        sceneId: string,
+        dialogueId: string,
+        optionId: string,
+        nextDialogueId: string
+    ): void {
+        const project = getProject(projectId);
+        if (!project) return; // Project not found
+        const scene = project.scenes.find((s) => s.id === sceneId);
+        if (!scene) return; // Scene not found
+        const dialogue = scene.dialogues.find((d) => d.id === dialogueId);
+        if (!dialogue) return; // Dialogue not found
+        const option = dialogue.data.options.find((o) => o.id === optionId);
+        if (!option) return; // Option not found
+        console.log('linking option', optionId, '->', nextDialogueId);
+        option.nextDialogueId = nextDialogueId;
+    }
+
+    // Unlink an option
+    function unlinkOption(
+        projectId: string,
+        sceneId: string,
+        dialogueId: string,
+        optionId: string
+    ): void {
+        const project = getProject(projectId);
+        if (!project) return; // Project not found
+        const scene = project.scenes.find((s) => s.id === sceneId);
+        if (!scene) return; // Scene not found
+        const dialogue = scene.dialogues.find((d) => d.id === dialogueId);
+        if (!dialogue) return; // Dialogue not found
+        const option = dialogue.data.options.find((o) => o.id === optionId);
+        if (!option) return; // Option not found
+        option.nextDialogueId = null;
+    }
+
     return {
         projects,
         loadProjectsFromLocalStorage,
@@ -140,6 +178,8 @@ export const useProjectsStore = defineStore('projects', () => {
         addDialogue,
         removeDialogue,
         addOption,
-        removeOption
+        removeOption,
+        linkOption,
+        unlinkOption
     };
 });

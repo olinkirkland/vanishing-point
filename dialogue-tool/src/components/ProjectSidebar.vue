@@ -10,12 +10,13 @@
             </div>
             <div class="sidebar__header">
                 <h2>{{ project.name }}</h2>
-                <Button @click="onClickOpenProjectSettings" icon>
-                    <i class="fas fa-edit"></i>
-                </Button>
             </div>
             <p v-if="project.description">{{ project.description }}</p>
             <p v-else><em> No description yet. </em></p>
+            <Button @click="onClickOpenProjectSettings" full-width>
+                <i class="fas fa-cog"></i>
+                <span>Project Settings</span>
+            </Button>
             <Button @click="onClickAddScene" full-width>
                 <i class="fas fa-plus"></i>
                 <span>Add Scene</span>
@@ -32,7 +33,6 @@
                         'is-selected': selectedScene?.id === scene.id
                     }"
                 >
-                    <i class="fas fa-layer-group"></i>
                     <div class="full-width flex spread">
                         <span>{{ scene.name }}</span>
                         <span class="muted">{{ scene.dialogues.length }}</span>
@@ -43,11 +43,12 @@
         <section class="sidebar__scene" v-if="selectedScene">
             <div class="sidebar__header">
                 <h2>{{ selectedScene.name }}</h2>
-                <Button @click="onClickOpenSceneSettings" icon>
-                    <i class="fas fa-edit"></i>
-                </Button>
             </div>
             <p>{{ selectedScene.description }}</p>
+            <Button @click="onClickOpenSceneSettings" full-width>
+                <i class="fas fa-cog"></i>
+                <span>Scene Settings</span>
+            </Button>
             <Button @click="onClickAddDialogue" full-width>
                 <i class="fas fa-plus"></i>
                 <span>Add Dialogue</span>
@@ -149,15 +150,13 @@ function onClickSelectDialogue(dialogue: Dialogue) {
 
 .sidebar__header {
     width: 100%;
-    background-color: var(--color-surface);
-    padding-left: 1.2rem;
+    border-bottom: 1px solid var(--color-surface-alt);
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    > * {
-        opacity: 0.5;
-    }
+    // Don't shrink
+    flex-shrink: 0;
+    padding-bottom: 0.8rem;
 }
 
 section {

@@ -131,15 +131,14 @@ function onClickRemoveOption(id: string) {
     );
 }
 
-// TODO
 function onClickUnlinkOption(id: string) {
     if (!props.selectedDialogue) return;
-    // projectStore.unlink(
-    //     props.project.id,
-    //     props.selectedScene?.id,
-    //     props.selectedDialogue.id,
-    //     id
-    // );
+    projectStore.unlinkOption(
+        props.project.id,
+        props.selectedScene?.id,
+        props.selectedDialogue.id,
+        id
+    );
 }
 
 function onClickRemoveSelectedDialogue() {
@@ -163,15 +162,10 @@ function onClickRemoveSelectedDialogue() {
 
 .sidebar__header {
     width: 100%;
-    background-color: var(--color-surface);
-    padding-left: 1.2rem;
+    border-bottom: 1px solid var(--color-surface-alt);
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    > * {
-        opacity: 0.5;
-    }
 }
 
 section {

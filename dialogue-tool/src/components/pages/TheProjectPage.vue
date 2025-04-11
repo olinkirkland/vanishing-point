@@ -109,8 +109,6 @@ onPaneReady((vueFlowStore: VueFlowStore) => {
     selectedScene.value = project.value!.scenes[0] || null;
 });
 
-// Listen for connections between handles and edges
-
 // Watch selectedScene.id, load the correct nodes and edges
 watch(() => selectedScene.value?.id, populateScene);
 
@@ -148,7 +146,6 @@ function onConnectStart(event?: any) {
 }
 
 function onConnectEnd() {
-    console.log('onConnectEnd');
     seekingNodeId.value = null;
 }
 
@@ -270,7 +267,30 @@ function panToNode(id: string) {
 
 function onConnect(params: Edge | Connection) {
     const edge = params as Edge;
-    // edge.type = 'custom';
+
+    const sourceNodeId = edge.source;
+    const sourceOptionId = edge.sourceHandle;
+    const targetNodeId = edge.target;
+
+    console.log('onConnect', {
+        sourceNodeId,
+        sourceOptionId,
+        targetNodeId
+    });
+
+    // Link the option
+    useProjectsStore().linkOption(
+        projectId.value as string,
+        selectedScene.value?.id as string,
+        sourceNodeId,
+        sourceOptionId as string,
+        targetNodeId
+    );
+
+    addEdge(edge);
+}
+
+function addEdge(edge: Edge) {
     edge.markerEnd = {
         type: MarkerType.Arrow,
         width: 10,
@@ -278,13 +298,13 @@ function onConnect(params: Edge | Connection) {
         strokeWidth: 2,
         color: 'var(--color-on-surface)'
     };
-    // Color dark
+
     edge.style = {
         stroke: 'var(--color-on-surface)',
         strokeWidth: 2
     };
 
-    addEdges([params]);
+    addEdges([edge]);
 }
 </script>
 
@@ -294,7 +314,6 @@ function onConnect(params: Edge | Connection) {
     padding: 2rem;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
     align-items: stretch;
     justify-content: space-between;
 }
