@@ -8,19 +8,28 @@
             :snap-grid="[16, 16]"
             :zoom-on-double-click="false"
             :connection-mode="ConnectionMode.Strict"
+            :connection-radius="40"
+            @connect="onConnect"
             v-on:nodes-change="onNodesChange"
+            @connect-start="onConnectStart"
+            @connect-end="onConnectEnd"
         >
+            <Background :gap="16" :offset="0" />
+
             <template
                 #node-dialogue="dialogueNodeProps"
                 v-on:drag="dialogueNodeProps.onDrag"
                 v-on:dragend="dialogueNodeProps.setPosition"
             >
-                <DialogueNode v-bind="dialogueNodeProps" />
+                <DialogueNode
+                    v-bind="dialogueNodeProps"
+                    :seekingNodeId="seekingNodeId"
+                />
             </template>
-            <template #edge-dialogue="specialEdgeProps">
-                <SpecialEdge v-bind="specialEdgeProps" />
+
+            <template #connection-line="props">
+                <CustomAnimatedEdge v-bind="props" />
             </template>
-            <Background :gap="16" :offset="0" />
         </VueFlow>
         <ProjectSidebar
             v-if="flowInstance"
@@ -51,7 +60,6 @@
 
 <script setup lang="ts">
 import DialogueNode from '@/components/flow/DialogueNode.vue';
-import SpecialEdge from '@/components/flow/SpecialEdge.vue';
 import Button from '@/components/ui/Button.vue';
 import Dialogue from '@/dialogue';
 import Project from '@/project';
@@ -60,8 +68,10 @@ import Scene from '@/scene';
 import { useProjectsStore } from '@/store/projects-store';
 import { Background } from '@vue-flow/background';
 import {
+    Connection,
     ConnectionMode,
     Edge,
+    MarkerType,
     NodeChange,
     useVueFlow,
     VueFlow,
@@ -71,8 +81,9 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import DialogueSidebar from '../DialogueSidebar.vue';
 import ProjectSidebar from '../ProjectSidebar.vue';
+import CustomAnimatedEdge from '../flow/CustomAnimatedEdge.vue';
 
-const { onPaneReady, toObject, updateNode } = useVueFlow();
+const { onPaneReady, toObject, updateNode, addEdges } = useVueFlow();
 
 const route = useRoute();
 
@@ -88,6 +99,8 @@ const selectedScene = ref<Scene | null>(null);
 const selectedDialogue = ref<Dialogue | null>(null);
 const edges = ref<Edge[]>([]);
 
+const seekingNodeId = ref<string | null>(null); // Used to track the node being dragged from
+
 // Initialize once the VueFlow instance is ready
 onPaneReady((vueFlowStore: VueFlowStore) => {
     console.log('VueFlow instance ready', vueFlowStore);
@@ -95,6 +108,8 @@ onPaneReady((vueFlowStore: VueFlowStore) => {
     flowInstance.value?.setViewport({ x: 0, y: 0, zoom: 1 });
     selectedScene.value = project.value!.scenes[0] || null;
 });
+
+// Listen for connections between handles and edges
 
 // Watch selectedScene.id, load the correct nodes and edges
 watch(() => selectedScene.value?.id, populateScene);
@@ -126,6 +141,16 @@ watch(
     },
     { deep: true }
 );
+
+function onConnectStart(event?: any) {
+    const nodeId = event.nodeId;
+    seekingNodeId.value = nodeId;
+}
+
+function onConnectEnd() {
+    console.log('onConnectEnd');
+    seekingNodeId.value = null;
+}
 
 // Load the nodes and edges when the scene changes
 function populateScene() {
@@ -241,6 +266,25 @@ function panToNode(id: string) {
         duration: 200,
         zoom: 1
     });
+}
+
+function onConnect(params: Edge | Connection) {
+    const edge = params as Edge;
+    // edge.type = 'custom';
+    edge.markerEnd = {
+        type: MarkerType.Arrow,
+        width: 10,
+        height: 10,
+        strokeWidth: 2,
+        color: 'var(--color-on-surface)'
+    };
+    // Color dark
+    edge.style = {
+        stroke: 'var(--color-on-surface)',
+        strokeWidth: 2
+    };
+
+    addEdges([params]);
 }
 </script>
 

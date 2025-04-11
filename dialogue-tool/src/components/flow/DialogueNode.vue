@@ -1,28 +1,32 @@
 <template>
     <Card
         class="vue-flow__node-default"
-        :class="{ dragging: props.dragging, 'is-selected': props.selected }"
+        :class="{
+            dragging: props.dragging,
+            'is-selected': props.selected
+        }"
         :id="`node-${props.id}`"
     >
+        <Handle
+            :id="props.id"
+            class="handle handle--incoming"
+            :position="Position.Left"
+            :type="'target'"
+            :class="{
+                connected: props.data.prevDialogueIds.length > 0,
+                seeking:
+                    !!props.seekingNodeId && props.seekingNodeId !== props.id
+            }"
+        />
+
         <div class="node-content">
             <div class="node-content__header">
-                <!-- Incoming Handle -->
-                <Handle
-                    :id="props.id"
-                    class="handle handle--incoming"
-                    :position="Position.Left"
-                    :type="'target'"
-                    :class="{
-                        connected: props.data.prevDialogueIds.length > 0
-                    }"
-                />
                 <p>{{ props.id }}</p>
             </div>
             <div class="node-content__body">
                 <p>{{ props.data.label }}</p>
                 <div class="flex">
-                    <i class="fas fa-code-branch"></i>
-                    <p>{{ props.data.prevDialogueIds.length }}</p>
+                    <p>({{ props.data.prevDialogueIds.length }})</p>
                 </div>
             </div>
         </div>
@@ -32,13 +36,23 @@
             <li v-for="(option, index) in props.data.options" :key="index">
                 <p>{{ option.label }}</p>
                 <p>{{ option.id }}</p>
-                <Handle
-                    :id="option.id"
-                    class="handle handle--outgoing"
-                    :class="{ connected: option.nextDialogueId }"
-                    :position="Position.Right"
-                    :type="'source'"
-                />
+                <div class="handle-container">
+                    <Handle
+                        :id="option.id"
+                        class="handle handle--outgoing"
+                        :class="{ connected: option.nextDialogueId }"
+                        :position="Position.Right"
+                        :type="'source'"
+                    />
+                    <i
+                        :class="[
+                            'fas',
+                            option.nextDialogueId
+                                ? 'fa-check-circle'
+                                : 'fa-dot-circle'
+                        ]"
+                    ></i>
+                </div>
             </li>
         </ul>
     </Card>
@@ -92,7 +106,7 @@ function updateHeight() {
 }
 
 .card {
-    overflow: hidden;
+    overflow: visible;
     border-color: var(--color-on-surface);
 }
 
@@ -127,16 +141,11 @@ function updateHeight() {
         align-items: center;
         p {
             text-align: left;
-            margin-left: 3.4rem;
-            margin-right: 0.8rem;
+            margin: 0 0.8rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             color: inherit;
-        }
-
-        .handle {
-            left: 1.6rem;
         }
     }
 }
@@ -174,36 +183,65 @@ ul.options {
             width: 100%;
             text-align: left;
         }
-
-        > .handle {
-            right: 1.6rem;
-        }
     }
 }
 
 .vue-flow__handle.handle {
-    border-radius: 50%;
-    width: 1.6rem;
-    height: 1.6rem;
-    background-color: var(--color-background);
-    border: 1px solid var(--color-surface-alt);
     position: absolute;
-    transition: all 0.2s ease-in-out;
+    background-color: red;
+    border: none;
 
     &.connectable {
         cursor: pointer;
     }
+}
 
-    &.connected::after {
-        content: '';
+.handle.handle--incoming {
+    top: 1.6rem;
+    left: -1.2rem;
+    transition: opacity 0.5s ease-in-out;
+    background-color: transparent;
+    opacity: 0;
+
+    &.seeking {
+        opacity: 1;
+        &::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            border-radius: 50%;
+            border: 2px solid var(--color-primary);
+            animation: pulse 1.5s infinite;
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+    }
+}
+
+.handle.handle--outgoing {
+    top: 1.6rem;
+    right: 1.6rem;
+    opacity: 0; // Hide the handle (the icon is the handle)
+
+    & + i {
+        pointer-events: none;
         position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 1rem;
-        height: 1rem;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        background-color: var(--color-primary);
+        top: 1rem;
+        right: 1rem;
+        color: var(--color-background);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        scale: 1;
+    }
+    50% {
+        scale: 1.2;
+    }
+    100% {
+        scale: 1;
     }
 }
 </style>
