@@ -20,9 +20,9 @@
                     </InputGroup>
                 </section>
 
-                <Button @click="onClickDeleteScene">
+                <Button @click="onClickDeleteScene" danger>
                     <i class="fas fa-exclamation-triangle"></i>
-                    Delete Scene
+                    <span>Delete Scene</span>
                 </Button>
             </div>
         </template>
@@ -55,7 +55,7 @@ function onClickDeleteScene() {
         message: t('UI.Modals.Delete-scene.message'),
         confirmText: t('UI.Modals.Delete-scene.Controls.confirm'),
         cancelText: t('UI.Modals.Delete-scene.Controls.cancel'),
-        isConfirmButtonCta: true,
+        isConfirmButtonDanger: true,
         onConfirm: () => {
             useProjectsStore().removeScene(props.project.id, props.scene.id);
             ModalController.close();

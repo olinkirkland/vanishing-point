@@ -49,9 +49,9 @@
                     </div>
                 </section>
 
-                <Button @click="onClickDeleteProject">
+                <Button @click="onClickDeleteProject" danger>
                     <i class="fas fa-exclamation-triangle"></i>
-                    Delete Project
+                    <span>Delete Project</span>
                 </Button>
             </div>
         </template>
@@ -83,7 +83,7 @@ function onClickDeleteProject() {
         message: t('UI.Modals.Delete-project.message'),
         confirmText: t('UI.Modals.Delete-project.Controls.confirm'),
         cancelText: t('UI.Modals.Delete-project.Controls.cancel'),
-        isConfirmButtonCta: true,
+        isConfirmButtonDanger: true,
         onConfirm: () => {
             router.push({ name: PageName.HOME });
             useProjectsStore().removeProject(props.project.id);

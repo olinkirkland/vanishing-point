@@ -158,7 +158,7 @@ export const useProjectsStore = defineStore('projects', () => {
         const project = getProject(projectId);
         if (!project) return; // Project not found
         const scene = project.scenes.find((s) => s.id === sceneId);
-        if (!scene) return; // Scene not found
+        if (!scene) return; // Scenpe not found
         scene.edges.push(edge);
     }
 

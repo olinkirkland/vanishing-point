@@ -13,14 +13,15 @@
             </div>
             <p v-if="project.description">{{ project.description }}</p>
             <p v-else><em> No description yet. </em></p>
-            <Button @click="onClickOpenProjectSettings" full-width>
-                <i class="fas fa-cog"></i>
-                <span>Project Settings</span>
-            </Button>
-            <Button @click="onClickAddScene" full-width>
-                <i class="fas fa-plus"></i>
-                <span>Add Scene</span>
-            </Button>
+            <div class="flex full-width">
+                <Button @click="onClickAddScene" full-width>
+                    <i class="fas fa-plus"></i>
+                    <span>Add Scene</span>
+                </Button>
+                <Button @click="onClickOpenProjectSettings" icon>
+                    <i class="fas fa-cog"></i>
+                </Button>
+            </div>
             <List class="scenes">
                 <li v-if="project.scenes.length === 0">
                     <em>No scenes yet.</em>
@@ -45,14 +46,15 @@
                 <h2>{{ selectedScene.name }}</h2>
             </div>
             <p>{{ selectedScene.description }}</p>
-            <Button @click="onClickOpenSceneSettings" full-width>
-                <i class="fas fa-cog"></i>
-                <span>Scene Settings</span>
-            </Button>
-            <Button @click="onClickAddDialogue" full-width>
-                <i class="fas fa-plus"></i>
-                <span>Add Dialogue</span>
-            </Button>
+            <div class="flex full-width">
+                <Button @click="onClickAddDialogue" full-width>
+                    <i class="fas fa-plus"></i>
+                    <span>Add Dialogue</span>
+                </Button>
+                <Button @click="onClickOpenSceneSettings" icon>
+                    <i class="fas fa-cog"></i>
+                </Button>
+            </div>
             <List class="dialogue">
                 <li v-if="selectedScene?.dialogues.length === 0">
                     <em>No dialogues yet.</em>

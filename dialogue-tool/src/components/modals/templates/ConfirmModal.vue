@@ -18,7 +18,8 @@
                     </Button>
                     <Button
                         class="btn"
-                        :primary="props.isConfirmButtonCta"
+                        :primary="props.isConfirmButtonPrimary"
+                        :danger="props.isConfirmButtonDanger"
                         @click="props.onConfirm"
                     >
                         <span>{{
@@ -45,7 +46,8 @@ const props = defineProps<{
     onCancel?: () => void;
     confirmText?: string;
     cancelText?: string;
-    isConfirmButtonCta?: boolean;
+    isConfirmButtonPrimary?: boolean;
+    isConfirmButtonDanger?: boolean;
 }>();
 
 function onClickCancel() {

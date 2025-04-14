@@ -4,6 +4,7 @@
         :class="{
             'btn--icon': icon,
             'btn--primary': primary,
+            'btn--danger': danger,
             'btn--disabled': disabled,
             'full-width': fullWidth
         }"
@@ -20,6 +21,7 @@ import { defineProps } from 'vue';
 const props = defineProps({
     icon: Boolean,
     primary: Boolean,
+    danger: Boolean,
     disabled: Boolean,
     fullWidth: Boolean
 });
@@ -76,6 +78,20 @@ button {
     }
     .btn__shadow {
         background-color: var(--color-primary-alt);
+    }
+}
+
+// Danger button
+.btn--danger {
+    .btn__content {
+        background-color: var(--color-danger);
+        border: 1px solid var(--color-danger-alt);
+        * {
+            color: var(--color-background);
+        }
+    }
+    .btn__shadow {
+        background-color: var(--color-danger-alt);
     }
 }
 
